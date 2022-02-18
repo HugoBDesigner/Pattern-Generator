@@ -23,15 +23,15 @@ function button:init(x, y, w, h, clickfunc, clickargs, text)
 	self.holdmode = false --If true, calls the function in every update
 	self.hovering = false
 	self.clicking = false
-	self.color = {255, 255, 255, 255}
-	self.clickcolor = {205, 235, 255, 255}
-	self.hovercolor = {235, 235, 235, 255}
-	self.outline = {0, 0, 0, 255}
-	self.outclick = {0, 35, 55, 255}
-	self.outhover = {35, 35, 35, 255}
+	self.color = {255/255, 255/255, 255/255, 255/255}
+	self.clickcolor = {205/255, 235/255, 255/255, 255/255}
+	self.hovercolor = {235/255, 235/255, 235/255, 255/255}
+	self.outline = {0/255, 0/255, 0/255, 255/255}
+	self.outclick = {0/255, 35/255, 55/255, 255/255}
+	self.outhover = {35/255, 35/255, 35/255, 255/255}
 	
-	self.innerline = {255, 255, 255, 0}
-	self.textshadow = {0, 0, 0, 0}
+	self.innerline = {255/255, 255/255, 255/255, 0/255}
+	self.textshadow = {0/255, 0/255, 0/255, 0/255}
 end
 
 function button:draw()

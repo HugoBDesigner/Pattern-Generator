@@ -18,7 +18,7 @@ function self.draw(x, y, width, height, size, color)
 	if self.variables[4].value then
 		love.graphics.setColor(color)
 	else
-		love.graphics.setColor(255, 255, 255, 255)
+		love.graphics.setColor(1, 1, 1, 1)
 	end
 	
 	local img = self.variables[3].value

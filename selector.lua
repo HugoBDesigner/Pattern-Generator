@@ -9,7 +9,7 @@ local selector = {
 					maxsel = 1,
 					angle = 0,
 					lockedscroll = true,
-					color = {255, 255, 255, 255}
+					color = {255/255, 255/255, 255/255, 255/255}
 				}
 
 function selector.load(sizes, spacing, imgs, anim, sel, maxsel, angle)

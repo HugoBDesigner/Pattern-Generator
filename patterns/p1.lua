@@ -108,7 +108,7 @@ function self.draw(x, y, width, height, size, color)
 	local alpha = {unpack(color)}
 	local dark = {unpack(color)}
 	for i = 1, 3 do dark[i] = dark[i]*.9 end
-	alpha[4] = 255*.75
+	alpha[4] = .75
 	
 	local mult = 1
 	if size < 1 then

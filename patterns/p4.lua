@@ -10,7 +10,7 @@ self.variables = {
 	{t = "Horizontal Space", value = 10, extra = {0, 100, 5}},
 	{t = "Vertical Space", value = 30, extra = {0, 100, 5}},
 	{t = "Show Underline", value = true},
-	{t = "Interior Color", value = {255, 255, 255, 255}, extra = "color"}
+	{t = "Interior Color", value = {1, 1, 1, 1}, extra = "color"}
 }
 
 function self.draw(x, y, width, height, size, color)

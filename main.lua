@@ -1,6 +1,6 @@
 resetFiles = false
 userLog = ""
-version = "1.2b"
+version = "2.0"
 function love.load()
 	--=================--
 	-- WINDOW PREPPING --
@@ -8,7 +8,7 @@ function love.load()
 	
 	-- Remote console for myself
 	console = false
-	if love.filesystem.exists("console.txt") then
+	if love.filesystem.getInfo("console.txt") then
 		local s = love.filesystem.read("console.txt")
 		if s == "true" then
 			if love._openConsole then
@@ -18,23 +18,22 @@ function love.load()
 		end
 	end
 	
-	if love.filesystem.exists("seed.txt") then
+	math.randomseed(os.time())
+	if love.filesystem.getInfo("seed.txt") then
 		local s = love.filesystem.read("seed.txt")
 		if tonumber(s) then
 			math.randomseed(tonumber(s))
 		end
-	else
-		math.randomseed(os.time())
 	end
 	
 	require "class"
 	love.window.setTitle("Pattern Generator v" .. version)
---	require "HBDlib"
-	love.graphics.setBackgroundColor(205, 205, 205)
+	--	require "HBDlib"
+	love.graphics.setBackgroundColor(205/255, 205/255, 205/255)
 	love.window.setIcon( love.image.newImageData("images/icon.png") )
 	windowW, windowH = 850, 650
 	love.window.setMode(windowW, windowH)
---	love.filesystem.setIdentity("PatternGen")
+	--	love.filesystem.setIdentity("PatternGen")
 	love.filesystem.createDirectory("images")
 	love.filesystem.createDirectory("patterns")
 	love.filesystem.createDirectory("logs")
@@ -57,7 +56,7 @@ function love.load()
 	--================--
 	grad = love.image.newImageData(256, 256)
 	grad:mapPixel(function(x, y, r, g, b, a)
-		return 255, 255, 255, math.min(math.max(0, (256-y)), 255)
+		return 255/255, 255/255, 255/255, math.min(math.max(0, (256-y)/255), 255/255)
 	end)
 	grad = love.graphics.newImage(grad)
 	
@@ -93,7 +92,7 @@ function love.load()
 						end
 					end
 					
-					local ok2, err2 = pcall(pat.draw, 1, 1, 32, 32, 1, {255, 255, 255, 255})
+					local ok2, err2 = pcall(pat.draw, 1, 1, 32, 32, 1, {255/255, 255/255, 255/255, 255/255})
 					if not ok2 then
 						ok = false
 						newNotice("Error: failed to draw pattern " .. name)
@@ -171,9 +170,9 @@ function love.load()
 	for i, v in ipairs(patterns) do
 		previews[i] = love.graphics.newCanvas(96, 96)
 		love.graphics.setCanvas(previews[i])
-		love.graphics.setColor(255, 255, 255, 255)
+		love.graphics.setColor(255/255, 255/255, 255/255, 255/255)
 		love.graphics.rectangle("fill", 0, 0, 96, 96)
-		local c = {unpack(patternColor)}
+		local c = {color255to1(patternColor)}
 		for a = 1, 3 do
 			c[a] = c[a]*.5
 		end
@@ -241,7 +240,7 @@ function love.load()
 	while selectedPattern > 1 and not patterns[selectedPattern] do
 		selectedPattern = selectedPattern - 1
 	end
-	changePatternSize(0)
+	updatePattern()
 	
 	
 	--==============--
@@ -249,20 +248,20 @@ function love.load()
 	--==============--
 	headerPattern = love.graphics.newCanvas(800, 512)
 	love.graphics.setCanvas(headerPattern)
-	love.graphics.clear(255, 255, 255, 0)
-	love.graphics.setColor(255, 255, 255, 255)
+	love.graphics.clear(255/255, 255/255, 255/255, 0/255)
+	love.graphics.setColor(255/255, 255/255, 255/255, 255/255)
 	love.graphics.rectangle("fill", 0, 0, 800, 512)
 	for x = 1, math.ceil(800/32) do
 		for y = 1, math.ceil(512/32) do
 			local size = 1
-			local color = {205, 235, 255, 255}
+			local color = {205/255, 235/255, 255/255, 255/255}
 			local rate = 32
 			local xx, yy, ww, hh = (x-1)*rate*size, (y-1)*rate*size, rate*size, rate*size
 			
 			local alpha = {unpack(color)}
 			local dark = {unpack(color)}
 			for i = 1, 3 do dark[i] = dark[i]*.9 end
-			alpha[4] = 255*.75
+			alpha[4] = .75
 			
 			local mult = 1
 			if size < 1 then
@@ -311,7 +310,7 @@ function love.load()
 	--Select pattern above
 	buttons["uppat"] = button:new(wx+4, wy, ww-8, 32, function()
 		selectedPattern = selector.select(-1)
-		changePatternSize(0)
+		updatePattern()
 		scrolls["left"].value = 0
 		if patterns[selectedPattern].variables then
 			scrolls["left"].barsize = scrolls["left"].height
@@ -330,16 +329,16 @@ function love.load()
 		end
 	end)
 	buttons.uppat.holdmode = true
-	buttons.uppat.color = {0, 0, 0, 55}
-	buttons.uppat.outline = {0, 0, 0, 155}
-	buttons.uppat.outhover = {0, 0, 0, 155}
-	buttons.uppat.outclick = {0, 0, 0, 155}
-	buttons.uppat.hovercolor = {0, 0, 0, 75}
-	buttons.uppat.clickcolor = {0, 0, 0, 95}
+	buttons.uppat.color = {0/255, 0/255, 0/255, 55/255}
+	buttons.uppat.outline = {0/255, 0/255, 0/255, 155/255}
+	buttons.uppat.outhover = {0/255, 0/255, 0/255, 155/255}
+	buttons.uppat.outclick = {0/255, 0/255, 0/255, 155/255}
+	buttons.uppat.hovercolor = {0/255, 0/255, 0/255, 75/255}
+	buttons.uppat.clickcolor = {0/255, 0/255, 0/255, 95/255}
 	--Select pattern below
 	buttons["downpat"] = button:new(wx+4, wy+wh-32, ww-8, 32, function()
 		selectedPattern = selector.select(1)
-		changePatternSize(0)
+		updatePattern()
 		scrolls["left"].value = 0
 		if patterns[selectedPattern].variables then
 			scrolls["left"].barsize = scrolls["left"].height
@@ -358,32 +357,32 @@ function love.load()
 		end
 	end)
 	buttons.downpat.holdmode = true
-	buttons.downpat.color = {0, 0, 0, 55}
-	buttons.downpat.hovercolor = {0, 0, 0, 75}
-	buttons.downpat.clickcolor = {0, 0, 0, 95}
-	buttons.downpat.outline = {0, 0, 0, 155}
-	buttons.downpat.outhover = {0, 0, 0, 155}
-	buttons.downpat.outclick = {0, 0, 0, 155}
+	buttons.downpat.color = {0/255, 0/255, 0/255, 55/255}
+	buttons.downpat.hovercolor = {0/255, 0/255, 0/255, 75/255}
+	buttons.downpat.clickcolor = {0/255, 0/255, 0/255, 95/255}
+	buttons.downpat.outline = {0/255, 0/255, 0/255, 155/255}
+	buttons.downpat.outhover = {0/255, 0/255, 0/255, 155/255}
+	buttons.downpat.outclick = {0/255, 0/255, 0/255, 155/255}
 	--Preview image
 	buttons["previewsave"] = button:new(windowW/2-gothic["24"]:getWidth("Save as image")/2-8, windowH/2+320/2+12-4-math.floor(gothic["24"]:getHeight()/2), gothic["24"]:getWidth("Save as image")+16, gothic["24"]:getHeight()+8, previewMode, {"save"})
 	buttons.previewsave.active = false
 	buttons.previewsave.clickmode = false
-	buttons.previewsave.color = {205, 235, 255, 255}
-	buttons.previewsave.hovercolor = {155, 205, 255, 255}
-	buttons.previewsave.clickcolor = {105, 175, 255, 255}
+	buttons.previewsave.color = {205/255, 235/255, 255/255, 255/255}
+	buttons.previewsave.hovercolor = {155/255, 205/255, 255/255, 255/255}
+	buttons.previewsave.clickcolor = {105/255, 175/255, 255/255, 255/255}
 	--Randomize settings
 	love.graphics.setFont(gothic["24"])
 	local y = 10+gothic["48"]:getHeight()*.75 + gothic["24"]:getHeight()
 	buttons["random"] = button:new(windowW-off, y + off + #settings_random*(16+7), false, false, "randomFunc", false, "Randomize settings")
 	buttons.random.x = buttons.random.x - buttons.random.width
-	buttons.random.color = {205, 215, 235, 255}
-	buttons.random.hovercolor = {235, 235, 255, 255}
-	buttons.random.clickcolor = {105, 155, 235, 255}
-	buttons.random.outline = {55, 55, 55, 255}
-	buttons.random.outhover = {75, 75, 75, 255}
-	buttons.random.outclick = {25, 25, 25, 255}
-	buttons.random.innerline = {255, 255, 255, 105}
-	buttons.random.textshadow = {0, 0, 0, 105}
+	buttons.random.color = {205/255, 215/255, 235/255, 255/255}
+	buttons.random.hovercolor = {235/255, 235/255, 255/255, 255/255}
+	buttons.random.clickcolor = {105/255, 155/255, 235/255, 255/255}
+	buttons.random.outline = {55/255, 55/255, 55/255, 255/255}
+	buttons.random.outhover = {75/255, 75/255, 75/255, 255/255}
+	buttons.random.outclick = {25/255, 25/255, 25/255, 255/255}
+	buttons.random.innerline = {255/255, 255/255, 255/255, 105/255}
+	buttons.random.textshadow = {0/255, 0/255, 0/255, 105/255}
 	
 	--=========--
 	-- SCROLLS --
@@ -416,11 +415,11 @@ function love.load()
 	require "color"
 	colors = {}
 	--Pattern color
-	colors["pattern"] = color:new(windowW/2, windowH/2, 128, 24, function(r, g, b, a) patternColor = {r, g, b, a}; settings[2].value = patternColor; changePatternSize(0) end)
+	colors["pattern"] = color:new(windowW/2, windowH/2, 128, 24, function(r, g, b, a) patternColor = {r, g, b, a}; settings[2].value = patternColor; updatePattern() end)
 	colors["pattern"].active = false
 	colors["pattern"]:setColor(patternColor)
 	--Pattern background color
-	colors["patternBack"] = color:new(windowW/2, windowH/2, 128, 24, function(r, g, b, a) backColor = {r, g, b, a}; settings[3].value = backColor; changePatternSize(0) end)
+	colors["patternBack"] = color:new(windowW/2, windowH/2, 128, 24, function(r, g, b, a) backColor = {r, g, b, a}; settings[3].value = backColor; updatePattern() end)
 	colors["patternBack"].active = false
 	colors["patternBack"]:setColor(backColor)
 	
@@ -446,27 +445,29 @@ function love.load()
 		[3] = {t = "Open patterns\nfolder", value = function() love.system.openURL(love.filesystem.getSaveDirectory() .. "/patterns"); newLog("Redirecting to patterns folder", "log") end},
 		[4] = {t = "Reset all\nsettings", value = function() resetMode.active = true end}
 	}
-	settings_under[1].color = {215, 235, 205, 255}
-	settings_under[1].clickcolor = {155, 235, 105, 255}
-	settings_under[1].hovercolor = {235, 255, 235, 255}
+	settings_under[1].color = {215/255, 235/255, 205/255, 255/255}
+	settings_under[1].clickcolor = {155/255, 235/255, 105/255, 255/255}
+	settings_under[1].hovercolor = {235/255, 255/255, 235/255, 255/255}
 	
-	settings_under[4].color = {235, 215, 205, 255}
-	settings_under[4].clickcolor = {235, 155, 105, 255}
-	settings_under[4].hovercolor = {255, 235, 235, 255}
+	settings_under[4].color = {235/255, 215/255, 205/255, 255/255}
+	settings_under[4].clickcolor = {235/255, 155/255, 105/255, 255/255}
+	settings_under[4].hovercolor = {255/255, 235/255, 235/255, 255/255}
 	
 	
 	--Canvas size preset buttons
 	canvas_presets = {
-		[1] = {t = "A4", value = "A4 (300ppi) - portrait", w = 2480, h = 3508},
-		[2] = {t = "A4", value = "A4 (300ppi) - landscape", w = 3508, h = 2480},
-		[3] = {t = "A3", value = "A3 (300ppi) - portrait", w = 3508, h = 4960},
-		[4] = {t = "A3", value = "A3 (300ppi) - landscape", w = 4960, h = 3508},
-		[5] = {t = "8x6", value = "800 x 600", w = 800, h = 600},
-		[6] = {t = "VGA", value = "480p", w = 640, h = 480},
-		[7] = {t = "HD", value = "720p", w = 1280, h = 720},
-		[8] = {t = "fHD", value = "1080p", w = 1920, h = 1080},
-		[9] = {t = "4k", value = "4x 1080p", w = 3840, h = 2160},
-		[9] = {t = "64²", value = "64p²", w = 64, h = 64}
+		 [1] = {t = "A4", value = "A4 (300ppi) - portrait", w = 2480, h = 3508},
+		 [2] = {t = "A4", value = "A4 (300ppi) - landscape", w = 3508, h = 2480},
+		 [3] = {t = "A3", value = "A3 (300ppi) - portrait", w = 3508, h = 4960},
+		 [4] = {t = "A3", value = "A3 (300ppi) - landscape", w = 4960, h = 3508},
+		 [5] = {t = "8x6", value = "800 x 600", w = 800, h = 600},
+		 [6] = {t = "VGA", value = "480p", w = 640, h = 480},
+		 [7] = {t = "HD", value = "720p", w = 1280, h = 720},
+		 [8] = {t = "fHD", value = "1080p", w = 1920, h = 1080},
+		 [9] = {t = "4k", value = "4x 1080p", w = 3840, h = 2160},
+		[10] = {t = "64²", value = "64p²", w = 64, h = 64},
+		[11] = {t = "HD²", value = "1080²", w = 1080, h = 1080},
+		[12] = {t = "fHD²", value = "1920²", w = 1920, h = 1920},
 	}
 	
 	
@@ -477,9 +478,9 @@ function love.load()
 		windowH/2+gothic["24"]:getHeight(), gothic["24"]:getWidth(text)+gothic["24"]:getHeight(),
 		gothic["24"]:getHeight(), function() love.filesystem.remove("save.dat"); resetFiles = true; love.load(); newNotice("Settings successfully reset"); newLog("Settings reset", "log") end)
 	resetMode.button.clickmode = false
-	resetMode.button.color = {205, 235, 255, 255}
-	resetMode.button.hovercolor = {155, 205, 255, 255}
-	resetMode.button.clickcolor = {105, 175, 255, 255}
+	resetMode.button.color = {205/255, 235/255, 255/255, 255/255}
+	resetMode.button.hovercolor = {155/255, 205/255, 255/255, 255/255}
+	resetMode.button.clickcolor = {105/255, 175/255, 255/255, 255/255}
 	
 	
 	--Color guis for custom pattern settings
@@ -495,9 +496,10 @@ function love.load()
 					n = n+1
 				end
 				if type(w.value) == "table" and w.extra == "color" then
-					table.insert(colors, color:new(windowW/2, windowH/2, 128, 24, function(r, g, b, a) w.value = {r, g, b, a}; changePatternSize(0) end))
+					table.insert(colors, color:new(windowW/2, windowH/2, 128, 24, function(r, g, b, a) w.value = {r, g, b, a}; updatePattern() end))
 					w.gui = colors[#colors]
-					w.gui:setColor(w.value)
+					-- w.gui:setColor(w.value)
+					w.gui:setColor(color255to1(w.value))
 					w.gui.active = false
 					w.gui.autoupdate = w
 				end
@@ -506,7 +508,7 @@ function love.load()
 		end
 	end
 	
---	local sx, sy, sh, ss = 256, y, 32, 4
+	--	local sx, sy, sh, ss = 256, y, 32, 4
 	
 	--===============--
 	-- RANDOMIZATION --
@@ -524,7 +526,7 @@ function love.load()
 		
 		local function run(i, v)
 			if type(v.value) == "table" and v.extra == "color" then
-				v.value = {math.random(255), math.random(255), math.random(255), 255}
+				v.value = {math.random(), math.random(), math.random(), 1}
 				
 				if v.var then
 					_G[v.var] = v.value
@@ -581,7 +583,7 @@ function love.load()
 			end
 		end
 		
-		changePatternSize(0)
+		updatePattern()
 	end
 	
 	local n = os.date("*t")
@@ -803,20 +805,28 @@ function love.update(dt)
 					v.looptimer = math.max(1/180, v.looptimer * .95)
 					if type(v.value) == "number" and type(v.extra) == "table" then --NUMERICAL UI
 						if v.clicking == 1 then
-							v.value = math.max(v.extra[1], v.value-(v.extra[3] or 1))
+							local step = v.extra[3] or 1
+							local newNumber = v.value - step
+							newNumber = math.floor((newNumber - v.extra[1]) / step)
+							v.value = v.extra[1] + step*newNumber
+							-- v.value = math.max(v.extra[1], v.value-(v.extra[3] or 1))
 							
 							if v.var then
 								_G[v.var] = v.value
 							end
 						elseif v.clicking == 2 then
-							v.value = math.min(v.extra[2], v.value+(v.extra[3] or 1))
+							local step = v.extra[3] or 1
+							local newNumber = v.value + step
+							newNumber = math.ceil((newNumber - v.extra[1]) / step)
+							v.value = math.min(v.extra[2], v.extra[1] + step*newNumber)
+							-- v.value = math.min(v.extra[2], v.value+(v.extra[3] or 1))
 							
 							if v.var then
 								_G[v.var] = v.value
 							end
 						end
 						if size ~= patternSize then
-							changePatternSize(0)
+							updatePattern()
 						end
 					end
 				end
@@ -839,19 +849,27 @@ function love.update(dt)
 						v.looptimer = math.max(1/180, v.looptimer * .95)
 						if type(v.value) == "number" and type(v.extra) == "table" then --NUMERICAL UI
 							if v.clicking == 1 then
-								v.value = math.max(v.extra[1], v.value-(v.extra[3] or 1))
+								local step = v.extra[3] or 1
+								local newNumber = v.value - step
+								newNumber = math.floor((newNumber - v.extra[1]) / step)
+								v.value = v.extra[1] + step*newNumber
+								-- v.value = math.max(v.extra[1], v.value-(v.extra[3] or 1))
 								
 								if v.var then
 									_G[v.var] = v.value
 								end
 							elseif v.clicking == 2 then
-								v.value = math.min(v.extra[2], v.value+(v.extra[3] or 1))
+								local step = v.extra[3] or 1
+								local newNumber = v.value + step
+								newNumber = math.ceil((newNumber - v.extra[1]) / step)
+								v.value = math.min(v.extra[2], v.extra[1] + step*newNumber)
+								-- v.value = math.min(v.extra[2], v.value+(v.extra[3] or 1))
 								
 								if v.var then
 									_G[v.var] = v.value
 								end
 							end
-							changePatternSize(0)
+							updatePattern()
 						elseif type(v.extra) == "number" and type(v.value) == "table" then --ITEM SELECTION UI
 							v.looptimer = math.max(1/5, v.looptimer)
 							if v.clicking == 1 then
@@ -869,7 +887,7 @@ function love.update(dt)
 									v.extra = 1
 								end
 							end
-							changePatternSize(0)
+							updatePattern()
 						end
 					end
 				end
@@ -898,59 +916,59 @@ function love.draw()
 	local top = 240
 	local wx, wy, ww, wh = off, windowH-off-256, 640, 256
 	
-	love.graphics.setBackgroundColor(205, 205, 205, 255)
+	love.graphics.setBackgroundColor(205/255, 205/255, 205/255, 255/255)
 	
 	local y = 10+gothic["48"]:getHeight()*.75 + gothic["24"]:getHeight()
-	love.graphics.setColor(205, 215, 235, 255)
+	love.graphics.setColor(205/255, 215/255, 235/255, 255/255)
 	love.graphics.rectangle("fill", 0, 0, windowW, y)
 	
 	love.graphics.setFont(gothic["48"])
-	love.graphics.setColor(0, 0, 0, 155)
+	love.graphics.setColor(0/255, 0/255, 0/255, 155/255)
 	for i = 1, 2 do
 		love.graphics.print("Pattern Generator", 5+(2-i)*2, (2-i)*2)
-		love.graphics.setColor(105, 155, 0, 255)
+		love.graphics.setColor(105/255, 155/255, 0/255, 255/255)
 	end
 	
 	love.graphics.setFont(gothic["24"])
-	love.graphics.setColor(0, 0, 0, 155)
+	love.graphics.setColor(0/255, 0/255, 0/255, 155/255)
 	for i = 1, 2 do
 		love.graphics.print("by HugoBDesigner", 5+gothic["48"]:getWidth("Pattern Generator")-gothic["24"]:getWidth("by HugoBDesigner")+(2-i)*2, gothic["48"]:getHeight()*.75+(2-i)*2)
-		love.graphics.setColor(0, 155, 205, 255)
+		love.graphics.setColor(0/255, 155/255, 205/255, 255/255)
 	end
 	
-	love.graphics.setColor(255, 255, 255, 255)
+	love.graphics.setColor(255/255, 255/255, 255/255, 255/255)
 	love.graphics.setScissor(15+gothic["48"]:getWidth("Pattern Generator"), 0, windowW-(15+gothic["48"]:getWidth("Pattern Generator")), y)
 	love.graphics.draw(headerPattern, 15+gothic["48"]:getWidth("Pattern Generator"), 0, math.rad(30), 1, 1, 400, 256)
 	love.graphics.setScissor()
-	love.graphics.setColor(205, 215, 235, 255)
+	love.graphics.setColor(205/255, 215/255, 235/255, 255/255)
 	love.graphics.draw(grad, 15+gothic["48"]:getWidth("Pattern Generator"), y, -math.pi/2, y/256, (2*y)/256)
 	
-	love.graphics.setColor(55, 55, 55, 205)
+	love.graphics.setColor(55/255, 55/255, 55/255, 205/255)
 	love.graphics.setFont(gothic["12"])
 	love.graphics.print("Version " .. version, windowW - gothic["12"]:getWidth("Version " .. version), y-gothic["12"]:getHeight())
 	
 	love.graphics.setFont(gothic["24"])
-	love.graphics.setColor(105, 105, 105, 255)
+	love.graphics.setColor(105/255, 105/255, 105/255, 255/255)
 	love.graphics.setLineWidth(1)
 	love.graphics.line(0, y, windowW, y)
 	
 	-- Custom Pattern Name
-	love.graphics.setColor(235, 255, 205, 255)
+	love.graphics.setColor(235/255, 255/255, 205/255, 255/255)
 	love.graphics.draw(grad, 256, wy-off, -math.pi/2, (gothic["24"]:getHeight()+4)/256, (windowW-(256+4))/256)
-	love.graphics.setColor(0, 0, 0, 105)
+	love.graphics.setColor(0/255, 0/255, 0/255, 105/255)
 	
 	for a = 1, 2 do
 		love.graphics.print(patterns[selectedPattern].name, 256-(a-2)*2+4, wy-off-gothic["24"]:getHeight()-4-(a-2)*2)
-		love.graphics.setColor(55, 105, 0, 255)
+		love.graphics.setColor(55/255, 105/255, 0/255, 255/255)
 	end
 	
 	
 	
 	-- Canvas Display
-	love.graphics.setColor(235, 245, 255, 255)
+	love.graphics.setColor(235/255, 245/255, 255/255, 255/255)
 	love.graphics.rectangle("fill", 256, wy-off, windowW-256, windowH-(wy-off))
 	
-	love.graphics.setColor(0, 0, 0, 255)
+	love.graphics.setColor(0/255, 0/255, 0/255, 255/255)
 	love.graphics.setLineWidth(2)
 	love.graphics.line(256, wy-off, windowW, wy-off)
 	love.graphics.line(256, wy-off, 256, windowH)
@@ -958,9 +976,9 @@ function love.draw()
 	
 	-- Refresh button
 	local high = inside(love.mouse.getX(), love.mouse.getY(), 0, 0, windowW-refresh:getWidth()-2, wy-off-3-refresh:getHeight(), refresh:getWidth(), refresh:getHeight())
-	love.graphics.setColor(205, 205, 205, 255)
+	love.graphics.setColor(205/255, 205/255, 205/255, 255/255)
 	if high then
-		love.graphics.setColor(255, 255, 255, 255)
+		love.graphics.setColor(255/255, 255/255, 255/255, 255/255)
 	end
 	love.graphics.draw(refresh, windowW-refresh:getWidth()-2, wy-off-3-refresh:getHeight())
 	-- "Refresh code" popup
@@ -973,9 +991,9 @@ function love.draw()
 		local recw = gothic["12"]:getWidth(t) + toff*2
 		local rech = gothic["12"]:getHeight() + toff*2
 		
-		love.graphics.setColor(255, 255, 155, 205)
+		love.graphics.setColor(255/255, 255/255, 155/255, 205/255)
 		love.graphics.rectangle("fill", recx, recy, recw, rech)
-		love.graphics.setColor(55, 55, 0, 255)
+		love.graphics.setColor(55/255, 55/255, 0/255, 255/255)
 		love.graphics.rectangle("line", recx, recy, recw, rech)
 		love.graphics.setFont(gothic["12"])
 		love.graphics.print(t, recx+toff, recy+toff)
@@ -984,10 +1002,10 @@ function love.draw()
 	
 	
 	-- Custom Pattern Settings Display
-	love.graphics.setColor(235, 235, 235, 255)
+	love.graphics.setColor(235/255, 235/255, 235/255, 255/255)
 	love.graphics.rectangle("fill", off, y+off, 256-off*2-12, windowH-y-off*4-256)
 	
-	love.graphics.setColor(0, 0, 0, 255)
+	love.graphics.setColor(0/255, 0/255, 0/255, 255/255)
 	love.graphics.setLineWidth(1)
 	love.graphics.rectangle("line", off, y+off, 256-off*2-12, windowH-y-off*4-256)
 	
@@ -999,7 +1017,7 @@ function love.draw()
 	local imageDrop = false
 	local function run(i, v, n, sx, sy, sh, ss, shad, w)
 		local font = love.graphics.getFont()
-		love.graphics.setColor(0, 0, 0, 105)
+		love.graphics.setColor(0/255, 0/255, 0/255, 105/255)
 		love.graphics.setLineWidth(2)
 		if not shad then
 			love.graphics.setLineWidth(1)
@@ -1016,20 +1034,20 @@ function love.draw()
 				if (shad and a == 1) or a == 2 then
 					love.graphics.print(s .. ":", sx+ss+(2-a)*1.5, sy+(2-a)*1.5)
 				end
-				love.graphics.setColor(55, 55, 55, 255)
+				love.graphics.setColor(55/255, 55/255, 55/255, 255/255)
 			end
 		elseif type(v.value) == "function" then --BUTTON
-			love.graphics.setColor(v.color or {205, 215, 235, 255})
+			love.graphics.setColor(v.color or {205/255, 215/255, 235/255, 255/255})
 			if v.clicking then
-				love.graphics.setColor(v.clickcolor or {105, 155, 235, 255})
+				love.graphics.setColor(v.clickcolor or {105/255, 155/255, 235/255, 255/255})
 			elseif v.hovering then
-				love.graphics.setColor(v.hovercolor or {235, 235, 255, 255})
+				love.graphics.setColor(v.hovercolor or {235/255, 235/255, 255/255, 255/255})
 			end
 			
 			love.graphics.rectangle("fill", sx+font:getHeight()/2, sy, w, sh)
-			love.graphics.setColor(255, 255, 255, 105)
+			love.graphics.setColor(255/255, 255/255, 255/255, 105/255)
 			love.graphics.rectangle("line", sx+font:getHeight()/2+2, sy+2, w-4, sh-4)
-			love.graphics.setColor(55, 55, 55, 255)
+			love.graphics.setColor(55/255, 55/255, 55/255, 255/255)
 			love.graphics.rectangle("line", sx+font:getHeight()/2, sy, w, sh)
 			
 			local t = {""}
@@ -1041,31 +1059,31 @@ function love.draw()
 				end
 			end
 			for tt = 1, #t do
-				love.graphics.setColor(0, 0, 0, 105)
+				love.graphics.setColor(0/255, 0/255, 0/255, 105/255)
 				for a = 1, 2 do
 					if (shad and a == 1) or a == 2 then
 						love.graphics.print(t[tt], sx+font:getHeight()/2+(2-a)*1.5+ w/2 - font:getWidth(t[tt])/2, sy+(2-a)*1.5 + (tt-1)*font:getHeight())
 					end
-					love.graphics.setColor(55, 55, 55, 255)
+					love.graphics.setColor(55/255, 55/255, 55/255, 255/255)
 				end
 			end
 		elseif type(v.value) == "boolean" then --CHECKBOX
-			love.graphics.setColor(0, 0, 0, 105)
+			love.graphics.setColor(0/255, 0/255, 0/255, 105/255)
 			for a = 1, 2 do
 				if (shad and a == 1) or a == 2 then
 					love.graphics.print(s, sx+ss+(2-a)*1.5+sh*2, sy+(2-a)*1.5)
 				end
-				love.graphics.setColor(55, 55, 55, 255)
+				love.graphics.setColor(55/255, 55/255, 55/255, 255/255)
 			end
-			love.graphics.setColor(205, 235, 255, 255)
+			love.graphics.setColor(205/255, 235/255, 255/255, 255/255)
 			if v.hovering then
-				love.graphics.setColor(235, 235, 255, 255)
+				love.graphics.setColor(235/255, 235/255, 255/255, 255/255)
 			end
 			
 			if v.value == true then
-				love.graphics.setColor(0, 155, 255, 255)
+				love.graphics.setColor(0/255, 155/255, 255/255, 255/255)
 				if v.hovering then
-					love.graphics.setColor(55, 205, 255, 255)
+					love.graphics.setColor(55/255, 205/255, 255/255, 255/255)
 				end
 			end
 			
@@ -1075,7 +1093,7 @@ function love.draw()
 			love.graphics.rectangle("fill", sx+sh-recw/2, sy+sh/2-sh/3, recw, 2*sh/3)
 			love.graphics.rectangle("line", sx+sh-recw/2, sy+sh/2-sh/3, recw, 2*sh/3)
 			
-			love.graphics.setColor(55, 55, 55, 255)
+			love.graphics.setColor(55/255, 55/255, 55/255, 255/255)
 			love.graphics.setScissor(sx+sh-recw/2-sh/3 - 2, sy+sh/2-sh/3 - 2, sh/3 + 2, 2*sh/3 + 4)
 			love.graphics.circle("line", sx+sh-sh/3-.5, sy+sh/2, sh/3, 32)
 			love.graphics.setScissor()
@@ -1092,16 +1110,16 @@ function love.draw()
 			if v.value == true then px = px + recw end
 			
 			love.graphics.circle("fill", px, sy+sh/2, sh/3*.5, 32)
-			love.graphics.setColor(55, 55, 55, 255)
+			love.graphics.setColor(55/255, 55/255, 55/255, 255/255)
 			love.graphics.circle("line", px, sy+sh/2, sh/3*.5, 32)
 			--[[
 			love.graphics.circle("fill", sx+sh, sy+sh/2, sh/2, 32)
-			love.graphics.setColor(255, 255, 255, 155)
+			love.graphics.setColor(255/255, 255/255, 255/255, 155/255)
 			love.graphics.circle("line", sx+sh, sy+sh/2, sh/2-2, 32)
-			love.graphics.setColor(55, 55, 55, 255)
+			love.graphics.setColor(55/255, 55/255, 55/255, 255/255)
 			love.graphics.circle("line", sx+sh, sy+sh/2, sh/2, 32)
 			if v.value == true then
-				love.graphics.setColor(0, 155, 255, 255)
+				love.graphics.setColor(0/255, 155/255, 255/255, 255/255)
 				love.graphics.circle("fill", sx+sh, sy+sh/2, sh/4, 32)
 				love.graphics.circle("line", sx+sh, sy+sh/2, sh/4, 32)
 			end]]
@@ -1111,41 +1129,41 @@ function love.draw()
 			love.graphics.setLineWidth(1)
 		end
 		if v.extra == "image" then --IMAGE LOADER
-			love.graphics.setColor(205, 215, 235, 255)
+			love.graphics.setColor(205/255, 215/255, 235/255, 255/255)
 			if v.hovering then
-				love.graphics.setColor(235, 235, 255, 255)
+				love.graphics.setColor(235/255, 235/255, 255/255, 255/255)
 			end
 			love.graphics.draw(noImage, sx+8.5, sy, 0, sh/noImage:getWidth(), sh/noImage:getHeight())
 			
-			love.graphics.setColor(55, 55, 55, 255)
+			love.graphics.setColor(55/255, 55/255, 55/255, 255/255)
 			love.graphics.rectangle("line", sx+8.5, sy, sh, sh)
 			
 			if v.hovering then
 				imageDrop = true
 			end
 		elseif type(v.value) == "table" and v.extra == "color" then --COLOR SETTING
-			love.graphics.setColor(v.value)
+			love.graphics.setColor(color255to1(v.value))
 			love.graphics.rectangle("fill", sx+8, sy, font:getHeight()*1.5, font:getHeight())
-			love.graphics.setColor(255, 255, 255, 105)
+			love.graphics.setColor(255/255, 255/255, 255/255, 105/255)
 			love.graphics.rectangle("line", sx+8.5+2, sy+2, font:getHeight()*1.5-4, font:getHeight()-4)
-			love.graphics.setColor(55, 55, 55, 255)
+			love.graphics.setColor(55/255, 55/255, 55/255, 255/255)
 			love.graphics.rectangle("line", sx+8.5, sy, font:getHeight()*1.5, font:getHeight())
 		elseif type(v.value) == "number" and type(v.extra) == "table" then --NUMERICAL UI
-			love.graphics.setColor(205, 215, 235, 255)
+			love.graphics.setColor(205/255, 215/255, 235/255, 255/255)
 			if v.clicking == 1 then
-				love.graphics.setColor(105, 155, 235, 255)
+				love.graphics.setColor(105/255, 155/255, 235/255, 255/255)
 			elseif v.hovering == 1 then
-				love.graphics.setColor(235, 235, 255, 255)
+				love.graphics.setColor(235/255, 235/255, 255/255, 255/255)
 			end
 			love.graphics.rectangle("fill", sx+8.5, sy+sh/4, sh/2, sh/2)
-			love.graphics.setColor(255, 255, 255, 105)
+			love.graphics.setColor(255/255, 255/255, 255/255, 105/255)
 			love.graphics.rectangle("line", sx+8.5+2, sy+sh/4+2, sh/2-4, sh/2-4)
-			love.graphics.setColor(55, 55, 55, 255)
+			love.graphics.setColor(55/255, 55/255, 55/255, 255/255)
 			love.graphics.rectangle("line", sx+8.5, sy+sh/4, sh/2, sh/2)
 			love.graphics.line(sx+8.5+3*sh/8, sy+sh/4+sh/8, sx+8.5+sh/8, sy+sh/2)
 			love.graphics.line(sx+8.5+3*sh/8, sy+sh/4+3*sh/8, sx+8.5+sh/8, sy+sh/2)
 			
-			love.graphics.setColor(255, 255, 255, 105)
+			love.graphics.setColor(255/255, 255/255, 255/255, 105/255)
 			local smax = v.extra[2]
 			if math.mod(v.extra[3] or 1, 1) ~= 0 then
 				smax = smax+math.mod(v.extra[3] or 1, 1)
@@ -1165,22 +1183,22 @@ function love.draw()
 						love.graphics.line(sx+ss+(2-a)*1.5+sh + font:getWidth(smax)/2 + font:getWidth(news)/2, sy+(2-a)*1.5, sx+ss+(2-a)*1.5+sh + font:getWidth(smax)/2 + font:getWidth(news)/2, sy+(2-a)*1.5 + font:getHeight())
 					end
 				end
-				love.graphics.setColor(55, 85, 105, 255)
+				love.graphics.setColor(55/255, 85/255, 105/255, 255/255)
 			end
 			
 			sx = math.floor(sx + ss+1.5+sh + font:getWidth(smax))
 			if not shad then sx = sx - 3*sh/8 end
 			
-			love.graphics.setColor(205, 215, 235, 255)
+			love.graphics.setColor(205/255, 215/255, 235/255, 255/255)
 			if v.clicking == 2 then
-				love.graphics.setColor(105, 155, 235, 255)
+				love.graphics.setColor(105/255, 155/255, 235/255, 255/255)
 			elseif v.hovering == 2 then
-				love.graphics.setColor(235, 235, 255, 255)
+				love.graphics.setColor(235/255, 235/255, 255/255, 255/255)
 			end
 			love.graphics.rectangle("fill", sx+8.5, sy+sh/4, sh/2, sh/2)
-			love.graphics.setColor(255, 255, 255, 105)
+			love.graphics.setColor(255/255, 255/255, 255/255, 105/255)
 			love.graphics.rectangle("line", sx+8.5+2, sy+sh/4+2, sh/2-4, sh/2-4)
-			love.graphics.setColor(55, 55, 55, 255)
+			love.graphics.setColor(55/255, 55/255, 55/255, 255/255)
 			love.graphics.rectangle("line", sx+8.5, sy+sh/4, sh/2, sh/2)
 			love.graphics.line(sx+8.5+sh/8, sy+sh/4+sh/8, sx+8.5+3*sh/8, sy+sh/2)
 			love.graphics.line(sx+8.5+sh/8, sy+sh/4+3*sh/8, sx+8.5+3*sh/8, sy+sh/2)
@@ -1190,16 +1208,16 @@ function love.draw()
 			sy = sy + sh+ss
 			sx = sx - font:getWidth(s .. ": ") + sh
 			
-			love.graphics.setColor(205, 215, 235, 255)
+			love.graphics.setColor(205/255, 215/255, 235/255, 255/255)
 			if v.clicking == 1 then
-				love.graphics.setColor(105, 155, 235, 255)
+				love.graphics.setColor(105/255, 155/255, 235/255, 255/255)
 			elseif v.hovering == 1 then
-				love.graphics.setColor(235, 235, 255, 255)
+				love.graphics.setColor(235/255, 235/255, 255/255, 255/255)
 			end
 			love.graphics.rectangle("fill", sx+8.5, sy+sh/4, sh/2, sh/2)
-			love.graphics.setColor(255, 255, 255, 105)
+			love.graphics.setColor(255/255, 255/255, 255/255, 105/255)
 			love.graphics.rectangle("line", sx+8.5+2, sy+sh/4+2, sh/2-4, sh/2-4)
-			love.graphics.setColor(55, 55, 55, 255)
+			love.graphics.setColor(55/255, 55/255, 55/255, 255/255)
 			love.graphics.rectangle("line", sx+8.5, sy+sh/4, sh/2, sh/2)
 			love.graphics.line(sx+8.5+3*sh/8, sy+sh/4+sh/8, sx+8.5+sh/8, sy+sh/2)
 			love.graphics.line(sx+8.5+3*sh/8, sy+sh/4+3*sh/8, sx+8.5+sh/8, sy+sh/2)
@@ -1211,27 +1229,27 @@ function love.draw()
 				end
 			end
 			
-			love.graphics.setColor(255, 255, 255, 105)
+			love.graphics.setColor(255/255, 255/255, 255/255, 105/255)
 			for a = 1, 2 do
 				if (shad and a == 1) or a == 2 then
 					love.graphics.print(v.value[v.extra], sx+ss+(2-a)*1.5+sh + font:getWidth(smax)/2 - font:getWidth(v.value[v.extra])/2, sy+(2-a)*1.5)
 				end
-				love.graphics.setColor(55, 85, 105, 255)
+				love.graphics.setColor(55/255, 85/255, 105/255, 255/255)
 			end
 			
 			sx = math.floor(sx + ss+1.5+sh + font:getWidth(smax))
 			if not shad then sx = sx - 3*sh/8 end
 			
-			love.graphics.setColor(205, 215, 235, 255)
+			love.graphics.setColor(205/255, 215/255, 235/255, 255/255)
 			if v.clicking == 2 then
-				love.graphics.setColor(105, 155, 235, 255)
+				love.graphics.setColor(105/255, 155/255, 235/255, 255/255)
 			elseif v.hovering == 2 then
-				love.graphics.setColor(235, 235, 255, 255)
+				love.graphics.setColor(235/255, 235/255, 255/255, 255/255)
 			end
 			love.graphics.rectangle("fill", sx+8.5, sy+sh/4, sh/2, sh/2)
-			love.graphics.setColor(255, 255, 255, 105)
+			love.graphics.setColor(255/255, 255/255, 255/255, 105/255)
 			love.graphics.rectangle("line", sx+8.5+2, sy+sh/4+2, sh/2-4, sh/2-4)
-			love.graphics.setColor(55, 55, 55, 255)
+			love.graphics.setColor(55/255, 55/255, 55/255, 255/255)
 			love.graphics.rectangle("line", sx+8.5, sy+sh/4, sh/2, sh/2)
 			love.graphics.line(sx+8.5+sh/8, sy+sh/4+sh/8, sx+8.5+3*sh/8, sy+sh/2)
 			love.graphics.line(sx+8.5+sh/8, sy+sh/4+3*sh/8, sx+8.5+3*sh/8, sy+sh/2)
@@ -1257,16 +1275,16 @@ function love.draw()
 		local xx = sx + (i-1)*(bw+bs)
 		
 		local sc = math.min(bw/v.w, bw/v.h)
-		love.graphics.setColor(205, 235, 255, 255)
+		love.graphics.setColor(205/255, 235/255, 255/255, 255/255)
 		if v.high then
-			love.graphics.setColor(235, 245, 255, 255)
+			love.graphics.setColor(235/255, 245/255, 255/255, 255/255)
 		end
 		if v.down then
-			love.graphics.setColor(155, 205, 255, 255)
+			love.graphics.setColor(155/255, 205/255, 255/255, 255/255)
 		end
 		love.graphics.rectangle("fill", xx + bw/2 - v.w*sc/2, sy + bw/2 - v.h*sc/2, v.w*sc, v.h*sc)
 		
-		love.graphics.setColor(55, 55, 55, 255)
+		love.graphics.setColor(55/255, 55/255, 55/255, 255/255)
 		love.graphics.rectangle("line", xx + bw/2 - v.w*sc/2, sy + bw/2 - v.h*sc/2, v.w*sc, v.h*sc)
 		love.graphics.print(v.t, xx + bw/2 - gothic["12"]:getWidth(v.t)/2, sy + bw/2 - gothic["12"]:getHeight()/2)
 		
@@ -1274,9 +1292,9 @@ function love.draw()
 			local res = "[" .. v.w .. "x" .. v.h .. "]   "
 			love.graphics.print(v.value, sx + gothic["12"]:getWidth(res), sy+bw+bs/2)
 			
-			love.graphics.setColor(0, 0, 0, 105)
+			love.graphics.setColor(0/255, 0/255, 0/255, 105/255)
 			love.graphics.print(res, sx+.5, sy+bw+bs/2+1)
-			love.graphics.setColor(55, 75, 105, 255)
+			love.graphics.setColor(55/255, 75/255, 105/255, 255/255)
 			love.graphics.print(res, sx, sy+bw+bs/2)
 		end
 	end
@@ -1339,9 +1357,9 @@ function love.draw()
 		local recw = gothic["12"]:getWidth(t) + toff*2
 		local rech = gothic["12"]:getHeight() + toff*2
 		
-		love.graphics.setColor(255, 255, 155, 205)
+		love.graphics.setColor(255/255, 255/255, 155/255, 205/255)
 		love.graphics.rectangle("fill", recx, recy, recw, rech)
-		love.graphics.setColor(55, 55, 0, 255)
+		love.graphics.setColor(55/255, 55/255, 0/255, 255/255)
 		love.graphics.rectangle("line", recx, recy, recw, rech)
 		love.graphics.print(t, recx+toff, recy+toff)
 	end
@@ -1361,15 +1379,15 @@ function love.draw()
 	love.graphics.translate(wx, wy)
 	
 	selector.draw(ww/2, wh/2, function(x, y, w, h, s, i)
-		love.graphics.setColor(0, 35, 55, 255)
+		love.graphics.setColor(0/255, 35/255, 55/255, 255/255)
 		if i == 1 then
-			love.graphics.setColor(0, 55, 155, 255)
+			love.graphics.setColor(0/255, 55/255, 155/255, 255/255)
 		end
 		love.graphics.setLineWidth(3*(#previewSizes.sizes/i))
 		love.graphics.rectangle("line", x, y, w, h)
 	end)
 	
-	love.graphics.setColor(205, 205, 205, 255)
+	love.graphics.setColor(205/255, 205/255, 205/255, 255/255)
 	love.graphics.draw(grad, 0, 0, 0, ww/256, 64/256)
 	love.graphics.draw(grad, ww, wh, math.pi, ww/256, 64/256)
 	
@@ -1382,12 +1400,12 @@ function love.draw()
 	--=================--
 	local wx, wy, ww, wh = off+256, windowH-off-256, 640-256, 256
 	love.graphics.setLineWidth(3)
-	love.graphics.setColor(0, 0, 0, 255)
+	love.graphics.setColor(0/255, 0/255, 0/255, 255/255)
 	love.graphics.rectangle("line", wx, wy, ww, wh)
 	love.graphics.setScissor(wx, wy, ww, wh)
 	love.graphics.push()
 	love.graphics.translate(wx, wy)
-	love.graphics.setColor(255, 255, 255, 255)
+	love.graphics.setColor(255/255, 255/255, 255/255, 255/255)
 	love.graphics.rectangle("fill", 0, 0, ww, wh)
 	love.graphics.draw(patternCanvas, 0, 0)
 	love.graphics.pop()
@@ -1401,16 +1419,16 @@ function love.draw()
 	for i, v in pairs(buttons) do
 		v:draw()
 	end
-	love.graphics.setColor(255, 255, 255, 155)
+	love.graphics.setColor(255/255, 255/255, 255/255, 155/255)
 	local v = buttons.uppat
 	love.graphics.polygon("fill", v.x+v.width/2, v.y+v.height/4, v.x+v.width/2-v.width/8, v.y+v.height/4*3, v.x+v.width/2+v.width/8, v.y+v.height/4*3)
-	love.graphics.setColor(0, 0, 0, 255)
+	love.graphics.setColor(0/255, 0/255, 0/255, 255/255)
 	love.graphics.polygon("line", v.x+v.width/2, v.y+v.height/4, v.x+v.width/2-v.width/8, v.y+v.height/4*3, v.x+v.width/2+v.width/8, v.y+v.height/4*3)
 	
-	love.graphics.setColor(255, 255, 255, 155)
+	love.graphics.setColor(255/255, 255/255, 255/255, 155/255)
 	local v = buttons.downpat
 	love.graphics.polygon("fill", v.x+v.width/2, v.y+v.height/4*3, v.x+v.width/2-v.width/8, v.y+v.height/4, v.x+v.width/2+v.width/8, v.y+v.height/4)
-	love.graphics.setColor(0, 0, 0, 255)
+	love.graphics.setColor(0/255, 0/255, 0/255, 255/255)
 	love.graphics.polygon("line", v.x+v.width/2, v.y+v.height/4*3, v.x+v.width/2-v.width/8, v.y+v.height/4, v.x+v.width/2+v.width/8, v.y+v.height/4)
 	
 	love.graphics.setLineWidth(1)
@@ -1430,16 +1448,16 @@ function love.draw()
 	if patternPreview and patternPreview ~= "false" then
 		
 		--Background darkness
-		love.graphics.setColor(0, 0, 0, 155)
+		love.graphics.setColor(0/255, 0/255, 0/255, 155/255)
 		love.graphics.rectangle("fill", 0, 0, windowW, windowH)
 		love.graphics.draw(grad, 0, 0, 0, windowW/256, windowH/2/256)
 		love.graphics.draw(grad, windowW, windowH, math.pi, windowW/256, windowH/2/256)
 		
 		local width, height = 480, 400
 		--Popup whiteness
-		love.graphics.setColor(255, 255, 255, 105)
+		love.graphics.setColor(255/255, 255/255, 255/255, 105/255)
 		love.graphics.rectangle("fill", windowW/2-width/2, windowH/2-height/2, width, height)
-		love.graphics.setColor(255, 255, 255, 255)
+		love.graphics.setColor(255/255, 255/255, 255/255, 255/255)
 		love.graphics.setLineWidth(2)
 		love.graphics.rectangle("line", windowW/2-width/2, windowH/2-height/2, width, height)
 		love.graphics.draw(grad, windowW/2-width/2, windowH/2, 0, width/256, height/2/256)
@@ -1450,13 +1468,13 @@ function love.draw()
 		local w, h = patternPreview:getWidth(), patternPreview:getHeight()
 		local factor = 320/math.max(w, h)
 		love.graphics.draw(patternPreview, windowW/2-factor*w/2, windowH/2-factor*h/2-12-8, 0, (factor*w)/w, (factor*h)/h)
-		love.graphics.setColor(0, 0, 0, 255)
+		love.graphics.setColor(0/255, 0/255, 0/255, 255/255)
 		love.graphics.setLineWidth(3)
 		love.graphics.rectangle("line", windowW/2-factor*w/2, windowH/2-factor*h/2-12-8, factor*w, factor*h)
 		
-		love.graphics.setColor(255, 255, 255, 255)
+		love.graphics.setColor(255/255, 255/255, 255/255, 255/255)
 		buttons.previewsave:draw()
-		love.graphics.setColor(0, 35, 55, 255)
+		love.graphics.setColor(0/255, 35/255, 55/255, 255/255)
 		love.graphics.setFont(gothic["24"])
 		love.graphics.print("Save as image", windowW/2-gothic["24"]:getWidth("Save as image")/2, windowH/2+320/2+10-math.floor(gothic["24"]:getHeight()/2))
 	end
@@ -1466,26 +1484,26 @@ function love.draw()
 	-- RESET SETTINGS POPUP --
 	--======================--
 	if resetMode.active == true then
-		love.graphics.setColor(0, 0, 0, 155)
+		love.graphics.setColor(0/255, 0/255, 0/255, 155/255)
 		love.graphics.rectangle("fill", 0, 0, windowW, windowH)
 		love.graphics.draw(grad, 0, 0, 0, windowW/256, windowH/2/256)
 		love.graphics.draw(grad, windowW, windowH, math.pi, windowW/256, windowH/2/256)
 		
 		local width, height = 600, 300
 		--Popup whiteness
-		love.graphics.setColor(255, 255, 255, 105)
+		love.graphics.setColor(255/255, 255/255, 255/255, 105/255)
 		love.graphics.rectangle("fill", windowW/2-width/2, windowH/2-height/2, width, height)
-		love.graphics.setColor(255, 255, 255, 255)
+		love.graphics.setColor(255/255, 255/255, 255/255, 255/255)
 		love.graphics.setLineWidth(2)
 		love.graphics.rectangle("line", windowW/2-width/2, windowH/2-height/2, width, height)
-		love.graphics.setColor(255, 255, 255, 255)
+		love.graphics.setColor(255/255, 255/255, 255/255, 255/255)
 		love.graphics.draw(grad, windowW/2-width/2, windowH/2, 0, width/256, height/2/256)
 		love.graphics.draw(grad, windowW/2-width/2, windowH/2, 0, width/256, height/2/256)
 		love.graphics.draw(grad, windowW/2+width/2, windowH/2, math.pi, width/256, height/2/256)
 		love.graphics.draw(grad, windowW/2+width/2, windowH/2, math.pi, width/256, height/2/256)
 		love.graphics.setLineWidth(3)
 		resetMode.button:draw()
-		love.graphics.setColor(0, 35, 55, 255)
+		love.graphics.setColor(0/255, 35/255, 55/255, 255/255)
 		love.graphics.setFont(gothic["24"])
 		local t = "Are you sure you want to reset all settings?"
 		love.graphics.print(t, windowW/2-gothic["24"]:getWidth(t)/2, windowH/2-gothic["24"]:getHeight()*2)
@@ -1513,14 +1531,14 @@ function love.draw()
 		end
 		y = y-off
 		
-		love.graphics.setColor(55, 55, 55, 255)
+		love.graphics.setColor(55/255, 55/255, 55/255, 255/255)
 		love.graphics.rectangle("fill", x, y, font:getWidth(v.text) + font:getHeight(), font:getHeight()+off)
-		love.graphics.setColor(155, 155, 155, 255)
+		love.graphics.setColor(155/255, 155/255, 155/255, 255/255)
 		love.graphics.rectangle("line", x, y, font:getWidth(v.text) + font:getHeight(), font:getHeight()+off)
-		love.graphics.setColor(105, 205, 255, 155)
+		love.graphics.setColor(105/255, 205/255, 255/255, 155/255)
 		for a = 1, 2 do
 			love.graphics.print(v.text, x+font:getHeight()/2+(2-a)*2, y+off/2+(2-a)*2)
-			love.graphics.setColor(235, 235, 235, 255)
+			love.graphics.setColor(235/255, 235/255, 235/255, 255/255)
 		end
 		yy = y + font:getHeight()+off
 	end
@@ -1584,27 +1602,27 @@ function love.keypressed(key)
 				return v.extra[2]
 			else
 				local n = tonumber(s)
-				local f = 1/v.extra[1]
-				
-				local md = n*f-v.extra[1]*f
-				--print("n-ex1 = " .. md)
-				local md2 = (v.extra[3] or 1)*f
-				--print("ex3 = " .. md2)
-				
-				local md3 = (md/md2)
-				--print("md/md2 = " .. md3)
-				--print("floor = " .. math.floor(md3))
-				md3 = md3 - math.floor(md3)
-				if md3 <= 0 or md3 == 1 then md3 = 0 end
-				--print("mod = " .. md3)
+				-- local f = 1/v.extra[1]
+				-- 
+				-- local md = n*f-v.extra[1]*f
+				-- --print("n-ex1 = " .. md)
+				-- local md2 = (v.extra[3] or 1)*f
+				-- --print("ex3 = " .. md2)
+				-- 
+				-- local md3 = (md/md2)
+				-- --print("md/md2 = " .. md3)
+				-- --print("floor = " .. math.floor(md3))
+				-- md3 = md3 - math.floor(md3)
+				-- if md3 <= 0 or md3 == 1 then md3 = 0 end
+				-- --print("mod = " .. md3)
 				
 				--print("n = " .. n)
 				if n < v.extra[1] then
 					n = v.extra[1]
 				elseif n > v.extra[2] then
 					n = v.extra[2]
-				elseif md3 ~= 0 then
-					n = math.max(v.extra[1], n-v.extra[1] - md3 + v.extra[1])
+				-- elseif md3 ~= 0 then
+				-- 	n = math.max(v.extra[1], n-v.extra[1] - md3 + v.extra[1])
 				end
 				
 				return n
@@ -1623,19 +1641,19 @@ function love.keypressed(key)
 			if v.var then
 				_G[v.var] = getNumber(val)
 			end
-			changePatternSize(0)
+			updatePattern()
 			editMode = false
 			v.clicking = false
 		elseif key == "escape" then
 			if v.var then
 				_G[v.var] = v.value
 			end
-			changePatternSize(0)
+			updatePattern()
 			editMode = false
 			v.clicking = false
-		elseif tonumber(key) and string.len(val) < string.len(maxs) then
+		elseif tonumber(key) then -- and string.len(val) < string.len(maxs) then
 			val = val .. key
-		elseif key == "." and string.len(val) < string.len(maxs) then
+		elseif key == "." then -- and string.len(val) < string.len(maxs) then
 			local can = true
 			if string.len(val) >= 1 then
 				for a = 1, string.len(val) do
@@ -1655,7 +1673,7 @@ function love.keypressed(key)
 			
 			if v.var then
 				_G[v.var] = getNumber(val)
-				changePatternSize(0)
+				updatePattern()
 			end
 		end
 		
@@ -1667,22 +1685,6 @@ function love.keypressed(key)
 		resetMode.active = false
 		return
 	end
-	
-	--[[if key == "down" then
-		selectedPattern = selector.select(1)
-		changePatternSize(0)
-	elseif key == "up" then
-		selectedPattern = selector.select(-1)
-		changePatternSize(0)
-	elseif key == "left" then
-		changePatternSize(-2)
-		settings[1].value = patternSize
-	elseif key == "right" then
-		changePatternSize(2)
-		settings[1].value = patternSize
-	elseif key == "enter" or key == "return" or key == "kpenter" then
-		previewMode()
-	end]]
 end
 
 function love.quit()
@@ -1775,7 +1777,12 @@ function love.mousepressed(x, y, button)
 			end
 			if inside(x, yy, 0, 0, sx+8.5, sy+sh/4, sh/2, sh/2) then
 				v.clicking = 1
-				v.value = math.max(v.extra[1], v.value-(v.extra[3] or 1))
+				
+				local step = v.extra[3] or 1
+				local newNumber = v.value - step
+				newNumber = math.floor((newNumber - v.extra[1]) / step)
+				v.value = v.extra[1] + step*newNumber
+				-- v.value = math.max(v.extra[1], v.value-(v.extra[3] or 1))
 				
 				if v.var then
 					_G[v.var] = v.value
@@ -1797,27 +1804,27 @@ function love.mousepressed(x, y, button)
 					return v.extra[2]
 				else
 					local n = tonumber(s)
-					local f = 1/v.extra[1]
-					
-					local md = n*f-v.extra[1]*f
-					--print("n-ex1 = " .. md)
-					local md2 = (v.extra[3] or 1)*f
-					--print("ex3 = " .. md2)
-					
-					local md3 = (md/md2)
-					--print("md/md2 = " .. md3)
-					--print("floor = " .. math.floor(md3))
-					md3 = md3 - math.floor(md3)
-					if md3 <= 0 or md3 == 1 then md3 = 0 end
-					--print("mod = " .. md3)
+					-- local f = 1/v.extra[1]
+					-- 
+					-- local md = n*f-v.extra[1]*f
+					-- --print("n-ex1 = " .. md)
+					-- local md2 = (v.extra[3] or 1)*f
+					-- --print("ex3 = " .. md2)
+					-- 
+					-- local md3 = (md/md2)
+					-- --print("md/md2 = " .. md3)
+					-- --print("floor = " .. math.floor(md3))
+					-- md3 = md3 - math.floor(md3)
+					-- if md3 <= 0 or md3 == 1 then md3 = 0 end
+					-- --print("mod = " .. md3)
 					
 					--print("n = " .. n)
 					if n < v.extra[1] then
 						n = v.extra[1]
 					elseif n > v.extra[2] then
 						n = v.extra[2]
-					elseif md3 ~= 0 then
-						n = math.max(v.extra[1], n-v.extra[1] - md3 + v.extra[1])
+					-- elseif md3 ~= 0 then
+					-- 	n = math.max(v.extra[1], n-v.extra[1] - md3 + v.extra[1])
 					end
 					
 					return n
@@ -1834,7 +1841,7 @@ function love.mousepressed(x, y, button)
 				if v.var then
 					_G[v.var] = v.value
 				end
-				changePatternSize(0)
+				updatePattern()
 				editMode = false
 			end
 			
@@ -1843,7 +1850,12 @@ function love.mousepressed(x, y, button)
 			
 			if inside(x, yy, 0, 0, sx+8.5, sy+sh/4, sh/2, sh/2) then
 				v.clicking = 2
-				v.value = math.min(v.extra[2], v.value+(v.extra[3] or 1))
+				
+				local step = v.extra[3] or 1
+				local newNumber = v.value + step
+				newNumber = math.ceil((newNumber - v.extra[1]) / step)
+				v.value = math.min(v.extra[2], v.extra[1] + step*newNumber)
+				-- v.value = math.min(v.extra[2], v.value+(v.extra[3] or 1))
 				
 				if v.var then
 					_G[v.var] = v.value
@@ -1856,7 +1868,7 @@ function love.mousepressed(x, y, button)
 					if v.var then
 						_G[v.var] = v.value
 					end
-					changePatternSize(0)
+					updatePattern()
 					editMode = false
 				--end
 			end
@@ -1970,7 +1982,7 @@ function love.mousepressed(x, y, button)
 			n = n + 1
 		end
 	end
-	changePatternSize(0)
+	updatePattern()
 	
 	-- Refresh button
 	if inside(love.mouse.getX(), love.mouse.getY(), 0, 0, windowW-refresh:getWidth()-2, wy-off-3-refresh:getHeight(), refresh:getWidth(), refresh:getHeight()) then
@@ -2107,7 +2119,7 @@ function love.filedropped(file)
 					v.value = love.graphics.newImage(v.value)
 					love.filesystem.remove("temp" .. can)
 					
-					changePatternSize(0)
+					updatePattern()
 				end
 			end
 			
@@ -2119,13 +2131,12 @@ function love.directorydropped(directory)
 	newLog("Directory \"" .. directory .. "\" dropped", "log")
 end
 
-function changePatternSize(i)
-	patternSize = math.min(5, math.max(.2, patternSize+.1*i))
+function updatePattern()
 	love.graphics.setCanvas(patternCanvas)
 	love.graphics.clear(255, 255, 255, 0)
-	love.graphics.setColor(backColor)
+	love.graphics.setColor(color255to1(backColor))
 	love.graphics.rectangle("fill", 0, 0, 640-256, 256)
-	love.graphics.setColor(patternColor)
+	love.graphics.setColor(color255to1(patternColor))
 	drawPattern(640-256, 256, patterns[selectedPattern])
 	love.graphics.setCanvas()
 end
@@ -2164,13 +2175,13 @@ end
 
 --[[function loadIcon() --OBSOLETE, but might reuse some day
 	love.graphics.clear()
-	love.graphics.setColor(255, 255, 255, 255)
+	love.graphics.setColor(255/255, 255/255, 255/255, 255/255)
 	love.graphics.rectangle("fill", 0, 0, 32, 32)
-	love.graphics.setColor(155, 205, 255, 255)
+	love.graphics.setColor(155/255, 205/255, 255/255, 255/255)
 	love.graphics.setLineWidth(3)
 	love.graphics.dashedRectangle(0, 0, 32, 32, 4)
 	love.graphics.setLineWidth(1)
-	love.graphics.setColor(155, 205, 255, 128)
+	love.graphics.setColor(155/255, 205/255, 255/255, 128/255)
 	love.graphics.dashedLine(0, 0, 32, 32, 4)
 	love.graphics.dashedLine(32, 0, 0, 32, 4)
 	local ic = love.graphics.newScreenshot()
@@ -2206,7 +2217,7 @@ function loadSettings()
 		
 	]]
 	
-	if love.filesystem.exists("save.dat") then
+	if love.filesystem.getInfo("save.dat") then
 		-- This part reads the variables from the file and translate them into their
 		-- "real names", as we're using fake ones to make save.dat easier to read
 		local vars = {"SelectedPattern", "ImageWidth", "ImageHeight", "PatternSize", "PatternColor", "PatternsOptions", "PatternBackground", "RandomOptions"}
@@ -2455,11 +2466,11 @@ end
 function renderImage(save) --Converts the patterns with all their settings into images, then save them
 	local can = love.graphics.newCanvas(patternWidth, patternHeight)
 	love.graphics.setCanvas(can)
-	love.graphics.setColor(backColor)
+	love.graphics.setColor(color255to1(backColor))
 	love.graphics.rectangle("fill", 0, 0, patternWidth, patternHeight) --setBackgroundColor creates weird transparency issues
 	
 	love.filesystem.createDirectory("images")
-	love.graphics.setColor(patternColor)
+	love.graphics.setColor(color255to1(patternColor))
 	drawPattern(patternWidth, patternHeight, patterns[selectedPattern])
 	love.graphics.setCanvas()
 	
@@ -2473,14 +2484,14 @@ function renderImage(save) --Converts the patterns with all their settings into 
 			end
 			return n
 		end
-		if love.filesystem.exists("images/001.png") then
+		if love.filesystem.getInfo("images/001.png") then
 			
-			while love.filesystem.exists("images/" .. addzero(imgn) .. ".png") do
+			while love.filesystem.getInfo("images/" .. addzero(imgn) .. ".png") do
 				imgn = imgn + 1
 			end
 		end
 		img:encode("png", "images/" .. addzero(imgn) .. ".png")
-		if love.filesystem.exists("images/" .. addzero(imgn) .. ".png") then
+		if love.filesystem.getInfo("images/" .. addzero(imgn) .. ".png") then
 			newNotice("Image saved successfully!")
 			newLog("New pattern image succesfully saved at \"" .. love.filesystem.getSaveDirectory() .. "/images/" .. addzero(imgn) .. ".png\"", "image")
 		end
@@ -2539,241 +2550,241 @@ local function error_printer(msg, layer)
 	print((debug.traceback("Error: " .. tostring(msg), 1+(layer or 1)):gsub("\n[^\n]+$", "")))
 end
  
-function love.errhand(msg)
-	msg = tostring(msg)
- 
-	error_printer(msg, 2)
- 
-	if not love.window or not love.graphics or not love.event then
-		return
-	end
- 
-	if not love.graphics.isCreated() or not love.window.isCreated() then
-		local success, status = pcall(love.window.setMode, 800, 600)
-		if not success or not status then
-			return
-		end
-	end
- 
-	-- Reset state.
-	if love.mouse then
-		love.mouse.setVisible(true)
-		love.mouse.setGrabbed(false)
-	end
-	if love.joystick then
-		-- Stop all joystick vibrations.
-		for i,v in ipairs(love.joystick.getJoysticks()) do
-			v:setVibration()
-		end
-	end
-	if love.audio then love.audio.stop() end
-	love.graphics.reset()
-	local font = love.graphics.setNewFont(math.floor(love.window.toPixels(14)))
- 
-	local sRGB = select(3, love.window.getMode()).srgb
-	if sRGB and love.math then
-		love.graphics.setBackgroundColor(love.math.gammaToLinear(89, 157, 220))
-	else
-		love.graphics.setBackgroundColor(89, 157, 220)
-	end
- 
-	love.graphics.setColor(255, 255, 255, 255)
- 
-	local trace = debug.traceback()
- 
-	love.graphics.clear()
-	love.graphics.origin()
- 
-	local err = {}
- 
-	table.insert(err, "Error\n")
-	table.insert(err, msg.."\n\n")
- 
-	for l in string.gmatch(trace, "(.-)\n") do
-		if not string.match(l, "boot.lua") then
-			l = string.gsub(l, "stack traceback:", "Traceback\n")
-			table.insert(err, l)
-		end
-	end
- 
-	local p = table.concat(err, "\n")
- 
-	p = string.gsub(p, "\t", "")
-	p = string.gsub(p, "%[string \"(.-)\"%]", "%1")
-	
-	local pos = 0
-	for i = 1, string.len(msg) do
-		if string.sub(msg, i, i) == ":" then
-			if pos ~= 0 then
-				pos = i
-				break
-			end
-			pos = i
-		end
-	end
-	
-	newLog(p, "error", true)
-	
-	buttons = {
-		{t = "Open logs folder", f = function() love.system.openURL(love.filesystem.getSaveDirectory() .. "/logs") end, down = false, high = false},
-		{t = "Copy error to clipboard", f = function() love.system.setClipboardText(p) end, down = false, high = false},
-		{t = "Report error online", f = function() love.system.openURL("https://love2d.org/forums/viewtopic.php?f=5&t=81186") end, down = false, high = false}
-	}
-	
-	local function draw()
-		love.graphics.clear()
-		
-		
-		--==============--
-		-- ERROR HEADER --
-		--==============--
-		local y = 10+gothic["48"]:getHeight()*.75 + gothic["24"]:getHeight()
-		
-		love.graphics.setColor(205, 215, 235, 255)
-		love.graphics.rectangle("fill", 0, 0, windowW, y)
-		
-		love.graphics.setColor(0, 0, 155, 105)
-		love.graphics.draw(grad, windowW, 0, math.pi*0.5, y/256, windowW/256)
-		
-		love.graphics.setFont(gothic["48"])
-		love.graphics.setColor(0, 0, 0, 155)
-		for i = 1, 2 do
-			love.graphics.print("Broken Generator", 5+(2-i)*2, (2-i)*2)
-			love.graphics.setColor(105, 155, 0, 255)
-		end
-		
-		love.graphics.setFont(gothic["24"])
-		love.graphics.setColor(0, 0, 0, 155)
-		for i = 1, 2 do
-			love.graphics.print("by HugoBDesigner", 5+gothic["48"]:getWidth("Pattern Generator")-gothic["24"]:getWidth("by HugoBDesigner")+(2-i)*2, gothic["48"]:getHeight()*.75+(2-i)*2)
-			love.graphics.setColor(0, 155, 205, 255)
-		end
-		
-		
-		--============--
-		-- ERROR BODY --
-		--============--
-		
-		love.graphics.setColor(255, 255, 255, 105)
-		love.graphics.draw(grad, 0, y, 0*math.pi, windowW/256, 64/256)
-		love.graphics.draw(grad, windowW, y, 0.5*math.pi, (windowH-y)/256, 64/256)
-		love.graphics.draw(grad, windowW, windowH, 1*math.pi, windowW/256, 64/256)
-		love.graphics.draw(grad, 0, windowH, 1.5*math.pi, (windowH-y)/256, 64/256)
-		
-		love.graphics.setColor(0, 0, 0, 255)
-		love.graphics.setLineWidth(2)
-		love.graphics.line(0, y, windowW, y)
-		
-		
-		--==============--
-		-- ERROR WINDOW --
-		--==============--
-		love.graphics.setColor(155, 255, 205, 105)
-		local off = 64
-		local w, h = windowW/3*2-off*2, windowH-off*2-y
-		love.graphics.rectangle("fill", windowW/3+off, y+off, w, h)
-		love.graphics.setColor(255, 255, 255, 255)
-		love.graphics.setLineWidth(3)
-		love.graphics.rectangle("line", windowW/3+off, y+off, w, h)
-		
-		love.graphics.setColor(55, 55, 55, 255)
-		love.graphics.push()
-		love.graphics.setScissor(windowW/3+off, y+off, w, h)
-		love.graphics.translate(math.ceil(windowW/3+off), math.ceil(y+off))
-		
-		off = off + 4
-		love.graphics.setFont(font)
-		love.graphics.print(string.sub(msg, 1, pos), 8, 8)
-		
-		love.graphics.setFont(gothic["16"])
-		love.graphics.print(string.sub(msg, pos+1, -1), 8+font:getWidth(string.sub(msg, 2, pos+1) .. ": "), 8-2)
-		love.graphics.setLineWidth(1)
-		love.graphics.line(6, 32, w-6, 32)
-		love.graphics.setColor(0, 0, 0, 255)
-		love.graphics.setFont(font)
-		love.graphics.printf( p, 8, 8*2+32, w-32, "left" )
-		
-		love.graphics.setScissor()
-		love.graphics.pop()
-		
-		love.graphics.setFont(gothic["20"])
-		local smax = 0
-		for i, v in ipairs(buttons) do
-			if gothic["20"]:getWidth(v.t) > smax then
-				smax = gothic["20"]:getWidth(v.t)
-			end
-		end
-		
-		love.graphics.setLineWidth(3)
-		for i, v in ipairs(buttons) do
-			love.graphics.setColor(205, 205, 235, 255)
-			if v.down then
-				love.graphics.setColor(205, 235, 255, 255)
-			elseif v.high then
-				love.graphics.setColor(235, 235, 255, 255)
-			end
-			love.graphics.rectangle("fill", 64, y+64+(i-1)*(32 + gothic["20"]:getHeight() + 16), smax+16, gothic["20"]:getHeight() + 16)
-			
-			love.graphics.setColor(55, 55, 55, 255)
-			love.graphics.rectangle("line", 64, y+64+(i-1)*(32 + gothic["20"]:getHeight() + 16), smax+16, gothic["20"]:getHeight() + 16)
-			
-			love.graphics.print(v.t, 64+(16/2)+smax/2 - gothic["20"]:getWidth(v.t)/2, y+64+(16/2)+(i-1)*(32 + gothic["20"]:getHeight() + 16))
-		end
-		
-		
-		love.graphics.present()
-	end
-	
-	while true do
-		local mx, my = love.mouse.getPosition()
-		
-		local smax = 0
-		for i, v in ipairs(buttons) do
-			if gothic["20"]:getWidth(v.t) > smax then
-				smax = gothic["20"]:getWidth(v.t)
-			end
-		end
-		
-		local y = 10+gothic["48"]:getHeight()*.75 + gothic["24"]:getHeight()
-		for i, v in ipairs(buttons) do
-			v.high = false
-			if inside(mx, my, 1, 1, 64, y+64+(i-1)*(32 + gothic["20"]:getHeight() + 16), smax+16, gothic["20"]:getHeight() + 16) then
-				v.high = true
-			end
-		end
-		love.event.pump()
- 
-		for e, a, b, c in love.event.poll() do
-			if e == "mousepressed" then
-				for i, v in ipairs(buttons) do
-					if inside(a, b, 1, 1, 64, y+64+(i-1)*(32 + gothic["20"]:getHeight() + 16), smax+16, gothic["20"]:getHeight() + 16) and c == 1 then
-						v.down = true
-						if v.f then
-							v.f()
-						end
-					end
-				end
-			end
-			if e == "mousereleased" and c == 1 then
-				for i, v in ipairs(buttons) do
-					v.down = false
-				end
-			end
-			if e == "quit" then
-				return
-			end
-			if e == "keypressed" and a == "escape" then
-				return
-			end
-		end
- 
-		draw()
- 
-		if love.timer then
-			love.timer.sleep(0.1)
-		end
-	end
-end
+-- function love.errhand(msg)
+-- 	msg = tostring(msg)
+-- 
+-- 	error_printer(msg, 2)
+-- 
+-- 	if not love.window or not love.graphics or not love.event then
+-- 		return
+-- 	end
+-- 
+-- 	if not love.graphics.isCreated() or not love.window.isCreated() then
+-- 		local success, status = pcall(love.window.setMode, 800, 600)
+-- 		if not success or not status then
+-- 			return
+-- 		end
+-- 	end
+-- 
+-- 	-- Reset state.
+-- 	if love.mouse then
+-- 		love.mouse.setVisible(true)
+-- 		love.mouse.setGrabbed(false)
+-- 	end
+-- 	if love.joystick then
+-- 		-- Stop all joystick vibrations.
+-- 		for i,v in ipairs(love.joystick.getJoysticks()) do
+-- 			v:setVibration()
+-- 		end
+-- 	end
+-- 	if love.audio then love.audio.stop() end
+-- 	love.graphics.reset()
+-- 	local font = love.graphics.setNewFont(math.floor(love.window.toPixels(14)))
+-- 
+-- 	local sRGB = select(3, love.window.getMode()).srgb
+-- 	if sRGB and love.math then
+-- 		love.graphics.setBackgroundColor(love.math.gammaToLinear(89, 157, 220))
+-- 	else
+-- 		love.graphics.setBackgroundColor(89, 157, 220)
+-- 	end
+-- 
+-- 	love.graphics.setColor(255/255, 255/255, 255/255, 255/255)
+-- 
+-- 	local trace = debug.traceback()
+-- 
+-- 	love.graphics.clear()
+-- 	love.graphics.origin()
+-- 
+-- 	local err = {}
+-- 
+-- 	table.insert(err, "Error\n")
+-- 	table.insert(err, msg.."\n\n")
+-- 
+-- 	for l in string.gmatch(trace, "(.-)\n") do
+-- 		if not string.match(l, "boot.lua") then
+-- 			l = string.gsub(l, "stack traceback:", "Traceback\n")
+-- 			table.insert(err, l)
+-- 		end
+-- 	end
+-- 
+-- 	local p = table.concat(err, "\n")
+-- 
+-- 	p = string.gsub(p, "\t", "")
+-- 	p = string.gsub(p, "%[string \"(.-)\"%]", "%1")
+-- 
+-- 	local pos = 0
+-- 	for i = 1, string.len(msg) do
+-- 		if string.sub(msg, i, i) == ":" then
+-- 			if pos ~= 0 then
+-- 				pos = i
+-- 				break
+-- 			end
+-- 			pos = i
+-- 		end
+-- 	end
+-- 
+-- 	newLog(p, "error", true)
+-- 
+-- 	buttons = {
+-- 		{t = "Open logs folder", f = function() love.system.openURL(love.filesystem.getSaveDirectory() .. "/logs") end, down = false, high = false},
+-- 		{t = "Copy error to clipboard", f = function() love.system.setClipboardText(p) end, down = false, high = false},
+-- 		{t = "Report error online", f = function() love.system.openURL("https://love2d.org/forums/viewtopic.php?f=5&t=81186") end, down = false, high = false}
+-- 	}
+-- 
+-- 	local function draw()
+-- 		love.graphics.clear()
+-- 
+-- 
+-- 		--==============--
+-- 		-- ERROR HEADER --
+-- 		--==============--
+-- 		local y = 10+gothic["48"]:getHeight()*.75 + gothic["24"]:getHeight()
+-- 
+-- 		love.graphics.setColor(205/255, 215/255, 235/255, 255/255)
+-- 		love.graphics.rectangle("fill", 0, 0, windowW, y)
+-- 
+-- 		love.graphics.setColor(0/255, 0/255, 155/255, 105/255)
+-- 		love.graphics.draw(grad, windowW, 0, math.pi*0.5, y/256, windowW/256)
+-- 
+-- 		love.graphics.setFont(gothic["48"])
+-- 		love.graphics.setColor(0/255, 0/255, 0/255, 155/255)
+-- 		for i = 1, 2 do
+-- 			love.graphics.print("Broken Generator", 5+(2-i)*2, (2-i)*2)
+-- 			love.graphics.setColor(105/255, 155/255, 0/255, 255/255)
+-- 		end
+-- 
+-- 		love.graphics.setFont(gothic["24"])
+-- 		love.graphics.setColor(0/255, 0/255, 0/255, 155/255)
+-- 		for i = 1, 2 do
+-- 			love.graphics.print("by HugoBDesigner", 5+gothic["48"]:getWidth("Pattern Generator")-gothic["24"]:getWidth("by HugoBDesigner")+(2-i)*2, gothic["48"]:getHeight()*.75+(2-i)*2)
+-- 			love.graphics.setColor(0/255, 155/255, 205/255, 255/255)
+-- 		end
+-- 
+-- 
+-- 		--============--
+-- 		-- ERROR BODY --
+-- 		--============--
+-- 
+-- 		love.graphics.setColor(255/255, 255/255, 255/255, 105/255)
+-- 		love.graphics.draw(grad, 0, y, 0*math.pi, windowW/256, 64/256)
+-- 		love.graphics.draw(grad, windowW, y, 0.5*math.pi, (windowH-y)/256, 64/256)
+-- 		love.graphics.draw(grad, windowW, windowH, 1*math.pi, windowW/256, 64/256)
+-- 		love.graphics.draw(grad, 0, windowH, 1.5*math.pi, (windowH-y)/256, 64/256)
+-- 
+-- 		love.graphics.setColor(0/255, 0/255, 0/255, 255/255)
+-- 		love.graphics.setLineWidth(2)
+-- 		love.graphics.line(0, y, windowW, y)
+-- 
+-- 
+-- 		--==============--
+-- 		-- ERROR WINDOW --
+-- 		--==============--
+-- 		love.graphics.setColor(155/255, 255/255, 205/255, 105/255)
+-- 		local off = 64
+-- 		local w, h = windowW/3*2-off*2, windowH-off*2-y
+-- 		love.graphics.rectangle("fill", windowW/3+off, y+off, w, h)
+-- 		love.graphics.setColor(255/255, 255/255, 255/255, 255/255)
+-- 		love.graphics.setLineWidth(3)
+-- 		love.graphics.rectangle("line", windowW/3+off, y+off, w, h)
+-- 
+-- 		love.graphics.setColor(55/255, 55/255, 55/255, 255/255)
+-- 		love.graphics.push()
+-- 		love.graphics.setScissor(windowW/3+off, y+off, w, h)
+-- 		love.graphics.translate(math.ceil(windowW/3+off), math.ceil(y+off))
+-- 
+-- 		off = off + 4
+-- 		love.graphics.setFont(font)
+-- 		love.graphics.print(string.sub(msg, 1, pos), 8, 8)
+-- 
+-- 		love.graphics.setFont(gothic["16"])
+-- 		love.graphics.print(string.sub(msg, pos+1, -1), 8+font:getWidth(string.sub(msg, 2, pos+1) .. ": "), 8-2)
+-- 		love.graphics.setLineWidth(1)
+-- 		love.graphics.line(6, 32, w-6, 32)
+-- 		love.graphics.setColor(0/255, 0/255, 0/255, 255/255)
+-- 		love.graphics.setFont(font)
+-- 		love.graphics.printf( p, 8, 8*2+32, w-32, "left" )
+-- 
+-- 		love.graphics.setScissor()
+-- 		love.graphics.pop()
+-- 
+-- 		love.graphics.setFont(gothic["20"])
+-- 		local smax = 0
+-- 		for i, v in ipairs(buttons) do
+-- 			if gothic["20"]:getWidth(v.t) > smax then
+-- 				smax = gothic["20"]:getWidth(v.t)
+-- 			end
+-- 		end
+-- 
+-- 		love.graphics.setLineWidth(3)
+-- 		for i, v in ipairs(buttons) do
+-- 			love.graphics.setColor(205/255, 205/255, 235/255, 255/255)
+-- 			if v.down then
+-- 				love.graphics.setColor(205/255, 235/255, 255/255, 255/255)
+-- 			elseif v.high then
+-- 				love.graphics.setColor(235/255, 235/255, 255/255, 255/255)
+-- 			end
+-- 			love.graphics.rectangle("fill", 64, y+64+(i-1)*(32 + gothic["20"]:getHeight() + 16), smax+16, gothic["20"]:getHeight() + 16)
+-- 
+-- 			love.graphics.setColor(55/255, 55/255, 55/255, 255/255)
+-- 			love.graphics.rectangle("line", 64, y+64+(i-1)*(32 + gothic["20"]:getHeight() + 16), smax+16, gothic["20"]:getHeight() + 16)
+-- 
+-- 			love.graphics.print(v.t, 64+(16/2)+smax/2 - gothic["20"]:getWidth(v.t)/2, y+64+(16/2)+(i-1)*(32 + gothic["20"]:getHeight() + 16))
+-- 		end
+-- 
+-- 
+-- 		love.graphics.present()
+-- 	end
+-- 
+-- 	while true do
+-- 		local mx, my = love.mouse.getPosition()
+-- 
+-- 		local smax = 0
+-- 		for i, v in ipairs(buttons) do
+-- 			if gothic["20"]:getWidth(v.t) > smax then
+-- 				smax = gothic["20"]:getWidth(v.t)
+-- 			end
+-- 		end
+-- 
+-- 		local y = 10+gothic["48"]:getHeight()*.75 + gothic["24"]:getHeight()
+-- 		for i, v in ipairs(buttons) do
+-- 			v.high = false
+-- 			if inside(mx, my, 1, 1, 64, y+64+(i-1)*(32 + gothic["20"]:getHeight() + 16), smax+16, gothic["20"]:getHeight() + 16) then
+-- 				v.high = true
+-- 			end
+-- 		end
+-- 		love.event.pump()
+-- 
+-- 		for e, a, b, c in love.event.poll() do
+-- 			if e == "mousepressed" then
+-- 				for i, v in ipairs(buttons) do
+-- 					if inside(a, b, 1, 1, 64, y+64+(i-1)*(32 + gothic["20"]:getHeight() + 16), smax+16, gothic["20"]:getHeight() + 16) and c == 1 then
+-- 						v.down = true
+-- 						if v.f then
+-- 							v.f()
+-- 						end
+-- 					end
+-- 				end
+-- 			end
+-- 			if e == "mousereleased" and c == 1 then
+-- 				for i, v in ipairs(buttons) do
+-- 					v.down = false
+-- 				end
+-- 			end
+-- 			if e == "quit" then
+-- 				return
+-- 			end
+-- 			if e == "keypressed" and a == "escape" then
+-- 				return
+-- 			end
+-- 		end
+-- 
+-- 		draw()
+-- 
+-- 		if love.timer then
+-- 			love.timer.sleep(0.1)
+-- 		end
+-- 	end
+-- end
 
 function love.window.getWidth()
 	local ww, hh = love.window.getMode()
@@ -2828,6 +2839,32 @@ function newLog(msg, tp, errhand)
 			error(tostring( string.gsub(msg, "\r\n", "\n") )) --Myself only
 		end
 	end
+end
+
+function color255to1(...)
+	local args = {...}
+	if #args == 1 and type(args[1]) == "table" then
+		return color255to1(unpack(args[1]))
+	end
+	
+	for i, _ in ipairs(args) do
+		args[i] = args[i] / 255
+	end
+	
+	return unpack(args)
+end
+
+function color1to255(...)
+	local args = {...}
+	if #args == 1 and type(args[1]) == "table" then
+		return color1to255(unpack(args[1]))
+	end
+	
+	for i, _ in ipairs(args) do
+		args[i] = math.ceil(args[i] * 255)
+	end
+	
+	return unpack(args)
 end
 
 newLog("Pattern Generator v" .. version .. " initialized", "boot")

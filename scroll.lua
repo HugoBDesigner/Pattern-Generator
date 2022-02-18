@@ -20,13 +20,13 @@ function scroll:init(x, y, w, h, bs, dir)
 	self.hovering = false
 	self.lastclick = false
 	self.clickpos = false
-	self.color = {255, 255, 255, 255}
-	self.barcolor = {155, 155, 155, 255}
-	self.clickcolor = {105, 135, 155, 255}
-	self.hovercolor = {135, 135, 135, 255}
-	self.outline = {0, 0, 0, 255}
-	self.outclick = {0, 35, 55, 255}
-	self.outhover = {35, 35, 35, 255}
+	self.color = {255/255, 255/255, 255/255, 255/255}
+	self.barcolor = {155/255, 155/255, 155/255, 255/255}
+	self.clickcolor = {105/255, 135/255, 155/255, 255/255}
+	self.hovercolor = {135/255, 135/255, 135/255, 255/255}
+	self.outline = {0/255, 0/255, 0/255, 255/255}
+	self.outclick = {0/255, 35/255, 55/255, 255/255}
+	self.outhover = {35/255, 35/255, 35/255, 255/255}
 end
 
 function scroll:update(dt)

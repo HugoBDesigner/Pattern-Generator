@@ -38,9 +38,9 @@ function color:init(x, y, radius, thickness, func)
 	
 	self.image = love.image.newImageData(self.radius*2, self.radius*2)
 	self.image:mapPixel(function(x, y, r, g, b, a)
-		local r, g, b, a = 255, 255, 255, 0
+		local r, g, b, a = 1, 1, 1, 0
 		if distance(x, y, self.radius, self.radius) >= self.radius-self.thickness and distance(x, y, self.radius, self.radius) <= self.radius then
-			r, g, b, a = 0, 0, 0, 255
+			r, g, b, a = 0, 0, 0, 1
 			
 			local an = math.atan2(y-self.radius, x-self.radius)
 			an = an + math.pi/2
@@ -59,11 +59,11 @@ function color:init(x, y, radius, thickness, func)
 			
 			if an <= aa and an >= -aa then
 				if an <= -aa/2 then
-					r = (1-math.abs((an+aa/2)/(aa-aa/2)))*255
+					r = 1-math.abs((an+aa/2)/(aa-aa/2))
 				elseif an > -aa/2 and an < aa/2 then
-					r = 255
+					r = 1
 				else
-					r = (1-math.abs((an-aa/2)/(aa-aa/2)))*255
+					r = 1-math.abs((an-aa/2)/(aa-aa/2))
 				end
 			end
 			
@@ -77,11 +77,11 @@ function color:init(x, y, radius, thickness, func)
 			
 			if an <= aa and an >= -aa then
 				if an <= -aa/2 then
-					g = (1-math.abs((an+aa/2)/(aa-aa/2)))*255
+					g = 1-math.abs((an+aa/2)/(aa-aa/2))
 				elseif an > -aa/2 and an < aa/2 then
-					g = 255
+					g = 1
 				else
-					g = (1-math.abs((an-aa/2)/(aa-aa/2)))*255
+					g = 1-math.abs((an-aa/2)/(aa-aa/2))
 				end
 			end
 			
@@ -95,17 +95,17 @@ function color:init(x, y, radius, thickness, func)
 			
 			if an <= aa and an >= -aa then
 				if an <= -aa/2 then
-					b = (1-math.abs((an+aa/2)/(aa-aa/2)))*255
+					b = 1-math.abs((an+aa/2)/(aa-aa/2))
 				elseif an > -aa/2 and an < aa/2 then
-					b = 255
+					b = 1
 				else
-					b = (1-math.abs((an-aa/2)/(aa-aa/2)))*255
+					b = 1-math.abs((an-aa/2)/(aa-aa/2))
 				end
 			end
 		end
-		if r >= 255 then r = 255 elseif r <= 0 then r = 0 end
-		if g >= 255 then g = 255 elseif g <= 0 then g = 0 end
-		if b >= 255 then b = 255 elseif b <= 0 then b = 0 end
+		if r >= 1 then r = 1 elseif r <= 0 then r = 0 end
+		if g >= 1 then g = 1 elseif g <= 0 then g = 0 end
+		if b >= 1 then b = 1 elseif b <= 0 then b = 0 end
 		return r, g, b, a
 	end)
 	
@@ -119,7 +119,7 @@ function color:init(x, y, radius, thickness, func)
 	
 	self.saturimage = love.image.newImageData(s1, s2)
 	self.saturimage:mapPixel(function(x, y, r, g, b, a)
-		local r, g, b, a = 255, 255, 255, 0
+		local r, g, b, a = 1, 1, 1, 0
 		if distance(x, y, s1/2, s2/2) <= d2 and distance(x, y, s1/2, s2/2) >= d1 then
 			local an = math.atan2(y-s2/2, x-s1/2)
 			an = an + aa
@@ -131,16 +131,16 @@ function color:init(x, y, radius, thickness, func)
 				f = f-aa/3
 				f = f/(aa/3*4)
 				if f <= 0 then f = 0 elseif f >= 1 then f = 1 end
-				r = 255
-				g = 255
-				b = 255
-				a = 255*f
+				r = 1
+				g = 1
+				b = 1
+				a = f
 			elseif an >= aa/3 and an <= math.pi-aa/3 then
 				local f = an-aa/3
 				f = f/(aa/3*4)
 				if f <= 0 then f = 0 elseif f >= 1 then f = 1 end
 				r, g, b = 0, 0, 0
-				a = 255*f
+				a = f
 			end
 		end
 		return r, g, b, a
@@ -149,14 +149,14 @@ function color:init(x, y, radius, thickness, func)
 	
 	self.saturback = love.image.newImageData(s1, s2)
 	self.saturback:mapPixel(function(x, y, r, g, b, a)
-		local r, g, b, a = 255, 255, 255, 0
+		local r, g, b, a = 1, 1, 1, 0
 		if distance(x, y, s1/2, s2/2) <= d2 and distance(x, y, s1/2, s2/2) >= d1 then
 			local an = math.atan2(y-s2/2, x-s1/2)
 			an = an + aa
 			if an < -math.pi then an = an + math.pi*2
 			elseif an > math.pi then an = an - math.pi*2 end
 			if (an <= -aa/3 and an >= -math.pi+aa/3) or (an >= aa/3 and an <= math.pi-aa/3) then
-				a = 255
+				a = 1
 			end
 		end
 		return r, g, b, a
@@ -177,12 +177,12 @@ function color:init(x, y, radius, thickness, func)
 	self.inputs.hex.t = self:hexrgb(math.ceil(r), math.ceil(g), math.ceil(b))
 	
 	self.okay = button:new(self.x-gothic["24"]:getWidth(" OK ")/2, self.y+self.radius+gothic["24"]:getHeight()*1.5+offset/4, gothic["24"]:getWidth(" OK "), gothic["24"]:getHeight())
-	self.okay.color = {255, 255, 255, 255}
-	self.okay.clickcolor = {215, 255, 205, 255}
-	self.okay.hovercolor = {240, 245, 235, 255}
-	self.okay.outline = {55, 55, 55, 255}
-	self.okay.outclick = {65, 105, 55, 255}
-	self.okay.outhover = {80, 85, 75, 255}
+	self.okay.color = {255/255, 255/255, 255/255, 255/255}
+	self.okay.clickcolor = {215/255, 255/255, 205/255, 255/255}
+	self.okay.hovercolor = {240/255, 245/255, 235/255, 255/255}
+	self.okay.outline = {55/255, 55/255, 55/255, 255/255}
+	self.okay.outclick = {65/255, 105/255, 55/255, 255/255}
+	self.okay.outhover = {80/255, 85/255, 75/255, 255/255}
 end
 
 function color:update(dt)
@@ -268,23 +268,23 @@ end
 
 function color:draw()
 	if not self.active then return end
-	love.graphics.setColor(0, 0, 0, 205)
+	love.graphics.setColor(0/255, 0/255, 0/255, 205/255)
 	love.graphics.rectangle("fill", 0, 0, love.window.getWidth(), love.window.getHeight())
 	love.graphics.setFont(gothic["12"])
-	love.graphics.setColor(205, 235, 255, 135)
+	love.graphics.setColor(205/255, 235/255, 255/255, 135/255)
 	local offset = 8
 	love.graphics.rectangle("fill", self.x-self.radius-offset, self.y-self.radius-offset, self.radius*2+offset*2, self.radius*2+offset*4+(gothic["12"]:getHeight()+offset/2)*3)
-	love.graphics.setColor(55, 55, 55, 255)
+	love.graphics.setColor(55/255, 55/255, 55/255, 255/255)
 	love.graphics.setLineWidth(4)
 	love.graphics.rectangle("line", self.x-self.radius-offset, self.y-self.radius-offset, self.radius*2+offset*2, self.radius*2+offset*4+(gothic["12"]:getHeight()+offset/2)*3)
 	local aa = math.pi/2
-	love.graphics.setColor(255, 255, 255, 255)
+	love.graphics.setColor(255/255, 255/255, 255/255, 255/255)
 	love.graphics.draw(self.image, self.x-self.radius, self.y-self.radius)
 	
 	local r, g, b, a = self:getColor()
-	love.graphics.setColor(r, g, b, 255)
+	love.graphics.setColor(r, g, b, 1)
 	love.graphics.circle("fill", self.x, self.y, self.radius/4, 32)
-	love.graphics.setColor(0, 0, 0, 255)
+	love.graphics.setColor(0/255, 0/255, 0/255, 255/255)
 	love.graphics.setLineWidth(1.5)
 	love.graphics.circle("line", self.x, self.y, self.radius/4, 32)
 	
@@ -294,7 +294,7 @@ function color:draw()
 	local s2 = -math.sin(a2)*d2*2
 	local r, g, b, a = self:getColor("!sat")
 	love.graphics.setScissor(self.x-self.radius, self.y-self.radius, self.radius, self.radius*2)
-	love.graphics.setColor(r, g, b, 255)
+	love.graphics.setColor(r, g, b, 1)
 	love.graphics.draw(self.saturback, self.x-s1/2, self.y-s2/2)
 	--love.graphics.setColor(255*(1-self.brightangle), 255*(1-self.brightangle), 255*(1-self.brightangle), 255)
 	love.graphics.setColor(255*.5, 255*.5, 255*.5, 255)
@@ -302,14 +302,14 @@ function color:draw()
 	love.graphics.setScissor()
 	
 	local r, g, b, a = self:getColor("!bri")
-	love.graphics.setColor(r, g, b, 255)
+	love.graphics.setColor(r, g, b, 1)
 	love.graphics.setScissor(self.x, self.y-self.radius, self.radius, self.radius*2)
 	love.graphics.draw(self.saturback, self.x-s1/2, self.y-s2/2)
-	love.graphics.setColor(255, 255, 255, 255)
+	love.graphics.setColor(255/255, 255/255, 255/255, 255/255)
 	love.graphics.draw(self.saturimage, self.x-s1/2, self.y-s2/2)
 	love.graphics.setScissor()
 	
-	love.graphics.setColor(0, 0, 0, 255)
+	love.graphics.setColor(0/255, 0/255, 0/255, 255/255)
 	local a1, a2 = math.pi/2+aa/3, math.pi+aa/3*2
 	love.graphics.line(self.x + math.cos(a1)*self.radius/2, self.y - math.sin(a1)*self.radius/2, self.x + math.cos(a1)*(self.radius/2+self.thickness), self.y - math.sin(a1)*(self.radius/2+self.thickness))
 	love.graphics.line(self.x + math.cos(a1)*self.radius/2, self.y + math.sin(a1)*self.radius/2, self.x + math.cos(a1)*(self.radius/2+self.thickness), self.y + math.sin(a1)*(self.radius/2+self.thickness))
@@ -322,7 +322,7 @@ function color:draw()
 	love.graphics.customarc("line", self.x, self.y, self.radius/2+self.thickness, a1, a2, 32)
 	love.graphics.customarc("line", self.x, self.y, self.radius/2, a1, a2, 32)
 	
-	love.graphics.setColor(0, 0, 0, 255)
+	love.graphics.setColor(0/255, 0/255, 0/255, 255/255)
 	love.graphics.setLineWidth(1.5)
 	love.graphics.circle("line", self.x, self.y, self.radius, 64)
 	love.graphics.circle("line", self.x, self.y, self.radius-self.thickness, 64)
@@ -332,7 +332,7 @@ function color:draw()
 		love.graphics.rotate(-self.selectionangle)
 		love.graphics.setLineWidth(4.5)
 		love.graphics.polygon("line", self.radius-self.thickness, -self.thickness/4, self.radius-self.thickness-2, 0, self.radius-self.thickness, self.thickness/4, self.radius, self.thickness/4, self.radius, -self.thickness/4)
-		love.graphics.setColor(255, 255, 255, 255)
+		love.graphics.setColor(255/255, 255/255, 255/255, 255/255)
 		love.graphics.setLineWidth(2.5)
 		love.graphics.polygon("line", self.radius-self.thickness, -self.thickness/4, self.radius-self.thickness-2, 0, self.radius-self.thickness, self.thickness/4, self.radius, self.thickness/4, self.radius, -self.thickness/4)
 		
@@ -342,9 +342,9 @@ function color:draw()
 		love.graphics.translate(self.x, self.y)
 		love.graphics.rotate(math.pi/2+aa/3+aa/12+(1-self.saturangle)*(aa/3*4-aa/6))
 		love.graphics.setLineWidth(4.5)
-		love.graphics.setColor(0, 0, 0, 255)
+		love.graphics.setColor(0/255, 0/255, 0/255, 255/255)
 		love.graphics.polygon("line", self.radius/2, -self.thickness/4, self.radius/2-2, 0, self.radius/2, self.thickness/4, self.radius/2+self.thickness, self.thickness/4, self.radius/2+self.thickness, -self.thickness/4)
-		love.graphics.setColor(255, 255, 255, 255)
+		love.graphics.setColor(255/255, 255/255, 255/255, 255/255)
 		love.graphics.setLineWidth(2.5)
 		love.graphics.polygon("line", self.radius/2, -self.thickness/4, self.radius/2-2, 0, self.radius/2, self.thickness/4, self.radius/2+self.thickness, self.thickness/4, self.radius/2+self.thickness, -self.thickness/4)
 	love.graphics.pop()
@@ -353,15 +353,15 @@ function color:draw()
 		love.graphics.translate(self.x, self.y)
 		love.graphics.rotate(math.pi/2-aa/3-aa/12-(1-self.brightangle)*(aa/3*4-aa/6))
 		love.graphics.setLineWidth(4.5)
-		love.graphics.setColor(0, 0, 0, 255)
+		love.graphics.setColor(0/255, 0/255, 0/255, 255/255)
 		love.graphics.polygon("line", self.radius/2, -self.thickness/4, self.radius/2-2, 0, self.radius/2, self.thickness/4, self.radius/2+self.thickness, self.thickness/4, self.radius/2+self.thickness, -self.thickness/4)
-		love.graphics.setColor(255, 255, 255, 255)
+		love.graphics.setColor(255/255, 255/255, 255/255, 255/255)
 		love.graphics.setLineWidth(2.5)
 		love.graphics.polygon("line", self.radius/2, -self.thickness/4, self.radius/2-2, 0, self.radius/2, self.thickness/4, self.radius/2+self.thickness, self.thickness/4, self.radius/2+self.thickness, -self.thickness/4)
 	love.graphics.pop()
 	
 	love.graphics.setLineWidth(1)
-	love.graphics.setColor(0, 0, 0, 255)
+	love.graphics.setColor(0/255, 0/255, 0/255, 255/255)
 	love.graphics.print("R:", self.x-self.radius+gothic["12"]:getHeight()-gothic["12"]:getWidth("R: "), self.y+self.radius+offset)
 	love.graphics.print("G:", self.x-self.radius+gothic["12"]:getHeight()-gothic["12"]:getWidth("G: "), self.y+self.radius+offset*2+gothic["12"]:getHeight())
 	love.graphics.print("B:", self.x-self.radius+gothic["12"]:getHeight()-gothic["12"]:getWidth("B: "), self.y+self.radius+offset*3+gothic["12"]:getHeight()*2)
@@ -371,9 +371,9 @@ function color:draw()
 	love.graphics.print("HEX:", self.x-gothic["12"]:getWidth("HEX:")/2, self.y+self.radius+offset-offset/4)
 	
 	for i, v in pairs(self.inputs) do
-		love.graphics.setColor(255, 255, 255, 255)
+		love.graphics.setColor(255/255, 255/255, 255/255, 255/255)
 		love.graphics.rectangle("fill", v.rec[1], v.rec[2], v.rec[3], v.rec[4])
-		love.graphics.setColor(0, 0, 0, 255)
+		love.graphics.setColor(0/255, 0/255, 0/255, 255/255)
 		love.graphics.rectangle("line", v.rec[1], v.rec[2], v.rec[3], v.rec[4])
 		love.graphics.print(v.t, v.x, v.y)
 		if self.lastinput and self.lastinput[1] == i and self.lastinput[3] > 0 then
@@ -383,7 +383,7 @@ function color:draw()
 	
 	love.graphics.setLineWidth(2.5)
 	self.okay:draw()
-	love.graphics.setColor(15, 55, 0, 255)
+	love.graphics.setColor(15/255, 55/255, 0/255, 255/255)
 	love.graphics.setFont(gothic["24"])
 	love.graphics.print(" OK", self.okay.x, self.okay.y)
 end
