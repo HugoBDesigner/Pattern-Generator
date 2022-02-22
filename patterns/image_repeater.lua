@@ -5,13 +5,13 @@ self.rateY = 64
 
 self.name = "Image Repeater"
 self.variables = {
-	{t = "Horizontal Spacing", value = 0, extra = {0, 100, 1}},
-	{t = "Vertical Spacing", value = 0, extra = {0, 100, 1}},
-	{t = "Image", extra = "image"},
-	{t = "Colored", value = true},
-	{t = "Random Seed", value = 1, extra = {1, 1000, 1}},
-	{t = "Rotate Randomly", value = false},
-	{t = "Keep Aspect Ratio", value = true}
+	[1] = {t = "Horizontal Spacing", value = 0, extra = {0, 100, 1}},
+	[2] = {t = "Vertical Spacing", value = 0, extra = {0, 100, 1}},
+	[3] = {t = "Image", extra = "image"},
+	[4] = {t = "Colored", value = true},
+	[5] = {t = "Random Seed", value = 1, extra = {1, 1000, 1}},
+	[6] = {t = "Rotate Randomly", value = false},
+	[7] = {t = "Keep Aspect Ratio", value = true}
 }
 
 function self.draw(x, y, width, height, size, color)

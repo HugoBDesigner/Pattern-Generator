@@ -4,19 +4,19 @@ self.rateX = 32
 self.rateY = 32
 self.name = "Concentric Squares"
 self.variables = {
-	["1"] = {t = "Show inwards lines", value = true},
-	["2"] = {t = "Total inwards lines", value = {"2p", "2d", 4, 8, 16, 32, 64, 128}, extra = 3}
+	[1] = {t = "Show inwards lines", value = true},
+	[2] = {t = "Total inwards lines", value = {"2p", "2d", 4, 8, 16, 32, 64, 128}, extra = 3}
 }
 
 function self.draw(x, y, width, height, size, color)
-	if self.variables["1"].value then
+	if self.variables[1].value then
 		local c = {unpack(color)}
 		for i = 1, 4 do
 			c[i] = c[i]*.75
 		end
 		love.graphics.setColor(c)
 		
-		local n = self.variables["2"].value[self.variables["2"].extra]
+		local n = self.variables[2].value[self.variables[2].extra]
 		if n == "2p" then
 			love.graphics.dashedLine(width/2, 0, width/2, height, 4)
 			love.graphics.dashedLine(0, height/2, width, height/2, 4)

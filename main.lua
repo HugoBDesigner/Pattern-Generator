@@ -6,18 +6,6 @@ function love.load()
 	-- WINDOW PREPPING --
 	--=================--
 	
-	-- Remote console for myself
-	console = false
-	if love.filesystem.getInfo("console.txt") then
-		local s = love.filesystem.read("console.txt")
-		if s == "true" then
-			if love._openConsole then
-				love._openConsole()
-				console = true
-			end
-		end
-	end
-	
 	math.randomseed(os.time())
 	if love.filesystem.getInfo("seed.txt") then
 		local s = love.filesystem.read("seed.txt")
@@ -85,7 +73,7 @@ function love.load()
 					if pat.name then name = "\"" .. pat.name .. "\" (" .. v .. ")" end
 					
 					if pat.variables then
-						for j, w in pairs(pat.variables) do
+						for j, w in ipairs(pat.variables) do
 							if w.extra == "image" then
 								w.value = love.graphics.newImage("images/noImage.png")
 							end
@@ -115,7 +103,7 @@ function love.load()
 						end
 						
 						if patterns[i].variables then
-							for j, w in pairs(patterns[i].variables) do
+							for j, w in ipairs(patterns[i].variables) do
 								if w.extra == "image" then
 									w.value = love.graphics.newImage("images/noImage.png")
 								end
@@ -315,7 +303,7 @@ function love.load()
 		if patterns[selectedPattern].variables then
 			scrolls["left"].barsize = scrolls["left"].height
 			local n = 0
-			for i, v in pairs(patterns[selectedPattern].variables) do
+			for i, v in ipairs(patterns[selectedPattern].variables) do
 				n = n+1
 				if type(v.extra) == "number" and type(v.value) == "table" then
 					n = n+1
@@ -343,7 +331,7 @@ function love.load()
 		if patterns[selectedPattern].variables then
 			scrolls["left"].barsize = scrolls["left"].height
 			local n = 0
-			for i, v in pairs(patterns[selectedPattern].variables) do
+			for i, v in ipairs(patterns[selectedPattern].variables) do
 				n = n+1
 				if type(v.extra) == "number" and type(v.value) == "table" then
 					n = n+1
@@ -396,7 +384,7 @@ function love.load()
 	scrolls["left"].barsize = scrolls["left"].height
 	local n = 0
 	if patterns[selectedPattern].variables then
-		for i, v in pairs(patterns[selectedPattern].variables) do
+		for i, v in ipairs(patterns[selectedPattern].variables) do
 			n = n+1
 			if type(v.extra) == "number" and type(v.value) == "table" then
 				n = n+1
@@ -490,7 +478,7 @@ function love.load()
 			newLog("Pattern " .. v.name .. " error: variables error: table expected, got " .. type(v.variables))
 		elseif v.variables then
 			local n = 0
-			for j, w in pairs(v.variables) do
+			for j, w in ipairs(v.variables) do
 				n = n+1
 				if type(v.extra) == "number" and type(v.value) == "table" then
 					n = n+1
@@ -578,7 +566,7 @@ function love.load()
 		end
 		
 		if patterns[selectedPattern].variables and settings_random[5].value then
-			for i, v in pairs(patterns[selectedPattern].variables) do
+			for i, v in ipairs(patterns[selectedPattern].variables) do
 				run(i, v)
 			end
 		end
@@ -774,7 +762,7 @@ function love.update(dt)
 		if patterns[selectedPattern].varheight > 9 then
 			y = y-6+(scrolls["left"].value*(6+(patterns[selectedPattern].varheight-1)*(ss+sh)-(windowH-sy-off*4-256)))
 		end
-		for i, v in pairs(patterns[selectedPattern].variables) do
+		for i, v in ipairs(patterns[selectedPattern].variables) do
 			run(i, v, n, sx, sy, sh, ss)
 			if type(v.extra) == "number" and type(v.value) == "table" then n = n + 1 end
 			n = n + 1
@@ -839,7 +827,7 @@ function love.update(dt)
 	
 	--Custom pattern settings
 	if patterns[selectedPattern].variables then
-		for i, v in pairs(patterns[selectedPattern].variables) do
+		for i, v in ipairs(patterns[selectedPattern].variables) do
 			if v.clicking then
 				if not v.timer then v.timer = .5; v.looptimer = .25 end
 				v.timer = v.timer - dt
@@ -1339,7 +1327,7 @@ function love.draw()
 			love.graphics.translate(0, 3-(scrolls["left"].value*(6+patterns[selectedPattern].varheight*(ss+sh)-(windowH-y-off*4-256))))
 		end
 		n = 0
-		for i, v in pairs(patterns[selectedPattern].variables) do
+		for i, v in ipairs(patterns[selectedPattern].variables) do
 			run(i, v, n, sx, sy, sh, ss)
 			if type(v.extra) == "number" and type(v.value) == "table" then n = n + 1 end
 			n = n + 1
@@ -1976,7 +1964,7 @@ function love.mousepressed(x, y, button)
 		if patterns[selectedPattern].varheight > 9 then
 			yy = y+(scrolls["left"].value*((patterns[selectedPattern].varheight-1)*(ss+sh)-(windowH-sy-off*4-256)))
 		end
-		for i, v in pairs(patterns[selectedPattern].variables) do
+		for i, v in ipairs(patterns[selectedPattern].variables) do
 			run(i, v, n, sx, sy, sh, ss, false, yy)
 			if type(v.extra) == "number" and type(v.value) == "table" then n = n + 1 end
 			n = n + 1
@@ -2042,7 +2030,7 @@ function love.mousereleased(x, y, button)
 			v.clicking = false
 		end
 		if patterns[selectedPattern].variables then
-			for i, v in pairs(patterns[selectedPattern].variables) do
+			for i, v in ipairs(patterns[selectedPattern].variables) do
 				v.clicking = false
 			end
 		end
@@ -2100,7 +2088,7 @@ end
 function love.filedropped(file)
 	newLog("File \"" .. file:getFilename() .. "\" dropped", "log")
 	if patterns[selectedPattern].variables then
-		for i, v in pairs(patterns[selectedPattern].variables) do
+		for i, v in ipairs(patterns[selectedPattern].variables) do
 			
 			if v.hovering and v.extra == "image" then
 				local path = file:getFilename()
@@ -2427,7 +2415,7 @@ function saveSettings()
 			s = s .. ";nil-"
 		else
 			s = s .. ";"
-			for j, w in pairs(v.variables) do
+			for j, w in ipairs(v.variables) do
 				-- Dealing again with special characters so that variables have more options of naming
 				local name = string.gsub(j, "!", "!!")
 				name = string.gsub(name, "\"", "!\\\"")

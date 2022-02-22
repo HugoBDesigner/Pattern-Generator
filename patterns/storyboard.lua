@@ -5,12 +5,12 @@ self.rateY = 0
 self.name = "Storyboard set"
 
 self.variables = {
-	{t = "Horizontal Squares", value = 3, extra = {1, 20}},
-	{t = "Vertical Squares", value = 4, extra = {1, 20}},
-	{t = "Horizontal Space", value = 10, extra = {0, 100, 5}},
-	{t = "Vertical Space", value = 30, extra = {0, 100, 5}},
-	{t = "Show Underline", value = true},
-	{t = "Interior Color", value = {1, 1, 1, 1}, extra = "color"}
+	[1] = {t = "Horizontal Squares", value = 3, extra = {1, 20}},
+	[2] = {t = "Vertical Squares", value = 4, extra = {1, 20}},
+	[3] = {t = "Horizontal Space", value = 10, extra = {0, 100, 5}},
+	[4] = {t = "Vertical Space", value = 30, extra = {0, 100, 5}},
+	[5] = {t = "Show Underline", value = true},
+	[6] = {t = "Interior Color", value = {1, 1, 1, 1}, extra = "color"}
 }
 
 function self.draw(x, y, width, height, size, color)

@@ -4,7 +4,7 @@ self.rateX = 32
 self.rateY = 32
 self.name = "Circled grid"
 self.variables = {
-	["1"] = {t = "Darker lines mode", value = {"None", "Diagonal", "Perpendicular", "Combined"}, extra = 1}
+	[1] = {t = "Darker lines mode", value = {"None", "Diagonal", "Perpendicular", "Combined"}, extra = 1}
 }
 function self.draw(x, y, width, height, size, color)
 	local xx, yy, ww, hh = (x-1)*self.rateX*size, (y-1)*self.rateY*size, self.rateX*size, self.rateY*size
@@ -13,7 +13,7 @@ function self.draw(x, y, width, height, size, color)
 		mult = 1/(1/size)
 	end
 	
-	local mode = self.variables["1"].value[self.variables["1"].extra]
+	local mode = self.variables[1].value[self.variables[1].extra]
 	local c = {unpack(color)}
 	for i = 1, 4 do c[i] = c[i]*.75 end
 	love.graphics.setColor(c)

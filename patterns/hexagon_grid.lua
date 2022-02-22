@@ -4,7 +4,7 @@ self.rateX = 32
 self.rateY = 32
 self.name = "Hexagon grid"
 self.variables = {
-	["1"] = {t = "Show darker lines", value = false}
+	[1] = {t = "Show darker lines", value = false}
 }
 function self.draw(x, y, width, height, size, color)
 	local ww, hh = self.rateX*size*math.sin(math.rad(45 + math.pi)), self.rateY*size*math.sin(math.rad(60))
@@ -18,7 +18,7 @@ function self.draw(x, y, width, height, size, color)
 		yy = yy-hh/2
 	end
 	
-	if self.variables["1"].value then
+	if self.variables[1].value then
 		love.graphics.setLineWidth(mult)
 		local c = {unpack(color)}
 		for i = 1, 4 do c[i] = c[i]*.75 end
